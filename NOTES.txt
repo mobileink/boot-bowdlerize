@@ -1,0 +1,12 @@
+
+1.  config info is e.g. the bower install command ard
+
+2.  config info goes in config files on the classpath
+
+3.  at build time boot goes through the clj courses to find the config namespaces
+
+4.  for each bower component exec a shell command to download
+
+5.  read the bower.json file for each pkg to get the right uri
+
+6.  generate run-time config files from the config files plus bower.json info

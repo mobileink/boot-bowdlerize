@@ -1,0 +1,9 @@
+= boot-bowdlerize
+
+Thomas Bowdler infamously excised the naughty bits in Shakespeare,
+producing a sanitized -- _bowdlerized_ -- version of the Bard for
+children and the those whose sensibilities were offended by obscene
+language.  `boot-bowdlerize` tries to do the same for `bower`,
+excising those nasty bits bits of Javascript and JSON to produce a
+Clojurized version suitable for those offended by obscene languages.
+
