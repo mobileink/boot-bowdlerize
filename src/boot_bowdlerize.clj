@@ -44,40 +44,111 @@
         ]
     j))
 
-(defn- bower->uri
-  [bower-meta]
-  (str
-       (str/join "/" ["bower_components"
-                      (-> bower-meta :latest :name)
-                      (-> bower-meta :latest :main)])))
+;; (defn- bower->uri
+;;   [base bower-meta]
+;;   (let [mains (-> bower-meta :latest :main)]
+;;       [(str/join "/" [base (-> bower-meta :latest :name) mains])])))
+
+(defn- bower->uris
+  [base bower-meta]
+  (let [mains (-> bower-meta :latest :main)]
+    (if (vector? mains)
+      (into [] (for [main mains]
+                 (str/join "/" [base (-> bower-meta :latest :name) main])))
+      [(str/join "/" [base (-> bower-meta :latest :name) mains])])))
+
+(defn- get-cfgs
+  [nx cfgs]
+  (println "CFGS: " nx cfgs)
+  (let [res (filter #(= (:ns %) nx) cfgs)]
+    (println "FILTERED: " res)
+    res))
+
+(defn- normalize-configs
+  [base configs]
+  ;; (println "normalize-configs: " configs)
+  (let [simples (filter #(or (symbol? (last %)) (map? (last %))) configs)
+        ;; _ (println "SIMPLES: " simples)
+        compounds (filter #(vector? (last %)) configs)
+        ;; _ (println "COMPOUNDS: " compounds)
+        normcomp (flatten (into [] (for [[pkg cfgs] compounds]
+                                     (into [] (for [cfg cfgs]
+                                                (merge {:bower-pkg pkg} cfg))))))
+        ;; _ (println "NORMALIZED COMPOUNDS")
+        ;; _ (pp/pprint normcomp)
+        cfgs (for [[k v] simples]
+               (merge {:bower-pkg k}
+                      (condp apply [v] symbol? {:ns (symbol (namespace v)) :name (symbol (name v))}
+                             map?    v)))
+        ;; _ (println "CFGS:")
+        ;; _ (pp/pprint cfgs)
+        normed (concat normcomp cfgs)
+        ;; _ (println "NORMED :")
+        ;; _ (pp/pprint normed)
+        ]
+    normed))
 
 (defn- get-config-maps
   "convert config map to data map suitable for stencil"
-  [configs]
-  (let [nss (set (for [[k v] configs] (:ns v)))
-        ns-configs (into [] (for [ns- nss]
-                              (let [ns-config (filter #(= (:ns (val %)) ns-) configs)]
-                                [ns- (into {} ns-config)])))
-        config-map (into [] (for [ns-config ns-configs]
-                              (let [k (first ns-config)
-                                    syms (last ns-config)]
-                                {:ns k
-                                 :config (into [] (for [[bower-pkg config] syms]
-                                                    (let [m (bower-meta bower-pkg)
-                                                          uri (bower->uri m)]
-                                                       (merge {:bower-pkg bower-pkg}
-                                                              (assoc config :uri uri)))))})))]
+  [bower-base configs]
+  ;; (println "get-config-maps")
+  (let [nss (set (flatten (for [[k v] configs]
+                            (cond
+                              (symbol? v) (let [ns (namespace v)]
+                                            (if ns (symbol ns)
+                                                (throw (Exception. "var must be namespaced"))))
+                              (map? v) (:ns v)
+                              (vector? v)
+                              (into [] (for [item v] (:ns item)))
+                              ;;FIXME: better error msg
+                              :else (throw (Exception. "config val must be map or vector of maps"))))))
+        ;; _ (println "nss: " nss)
+        normal-configs (normalize-configs bower-base configs)
+        ;; _ (println "NORMAL-CONFIGS:")
+        ;; _ (pp/pprint normal-configs)
+        ;;now add missing uris
+        config-map (into [] (for [ns-config normal-configs]
+                              (if (-> ns-config :uri)
+                                ns-config
+                                (let [m (bower-meta (:bower-pkg ns-config))
+                                      uris (bower->uris bower-base m)]
+                                  (merge ns-config (if (> (count uris) 1)
+                                                     (throw (Exception.
+                                                             (str "too many uris for bower pkg '"
+                                                             (:bower-pkg ns-config)
+                                                             "'; run bower info -j on the package and create a config for each latest.main entry")))
+                                                     ;; {:uri "FOO"
+                                                     ;; :name (gensym (-> ns-config
+                                                     ;;                   :name))}
+                                                     {:uri (first uris)}))))))]
     config-map))
 
 (defn- ns->filestr
   [ns-str]
   (str/replace ns-str #"\.|-" {"." "/" "-" "_"}))
 
+(defn prep-for-stencil
+  [& configs]
+  ;; (println "prep-for-stencil: " configs)
+  (let [nss (set (map #(-> % :ns) configs))
+        ;; _ (println "nss: " nss)
+        res (into [] (for [ns- nss]
+                       (let [ns-cfgs (filter #(= ns- (-> % :ns)) configs)]
+                         ;; (println "XXXXXXXXXXXXXXXX config-ns: " ns-)
+                         {:config-ns ns-
+                          :config
+                          (into [] (for [ns-cfg ns-cfgs]
+                                     ns-cfg))})))]
+    (println "FOR STENCIL:")
+    (pp/pprint res)
+    res))
+
 (boot/deftask config
   [n nss NSS #{sym} "config namespace"
+   b base PATH str "bower components base path, default: bower_components"
    o outdir PATH str "install dir, default: WEB-INF/classes"]
-;;   d directory DIR str "bower components dir, default: bower_components"]
   (let [nss   (if (empty? nss) #{'bower} nss)
+        base (if base base "bower_components")
         outdir   (if (nil? outdir) "WEB-INF/classes" outdir)
         tgt     (boot/tmp-dir!)
         pod-env (update-in (boot/get-env) [:dependencies] conj '[cheshire "5.5.0"])
@@ -89,14 +160,18 @@
         (if (:bower (meta (find-ns n)))
           (let [bower-sym (symbol (str (ns-name n)) "bower")
                 configs (deref (resolve bower-sym))
-                config-maps (get-config-maps configs)]
+                config-maps (get-config-maps base configs)
+                _ (println "config-maps: " (count config-maps))
+                _ (pp/pprint config-maps)
+                config-maps (apply prep-for-stencil config-maps)]
             (doseq [config-map config-maps]
-              (let [config-file-name (str (ns->filestr (:ns config-map)) ".clj")
-                    config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
-                                                     config-map)
-                    out-file (doto (io/file tgt (str outdir "/" config-file-name))
-                               io/make-parents)]
-                (spit out-file config-file))))
+              (do ;;(println "UUUUUUUUUUUUUUUUU: " config-map)
+                  (let [config-file-name (str (ns->filestr (-> config-map :config-ns)) ".clj")
+                        config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
+                                                         config-map)
+                        out-file (doto (io/file tgt (str outdir "/" config-file-name))
+                                   io/make-parents)]
+                    (spit out-file config-file)))))
           (util/warn (format "not a bower config ns: %s\n" n))))
       (-> fileset (boot/add-resource tgt) boot/commit!))))
 
@@ -186,19 +261,3 @@
                 ]
             (pp/pprint j))))
       fileset)))
-
-(boot/deftask post
-  "I'm a post-wrap task."
-  []
-  ;; merge environment etc
-  (println "Post-wrap task setup.")
-  (boot/with-post-wrap fs
-    (println "Post-wrap: Next task will run. Then we will run functions on its result (fs).")))
-
-(boot/deftask pass-thru
-  "I'm a pass-thru task."
-  []
-  ;; merge environment etc
-  (println "Pass-thru task setup.")
-  (boot/with-pass-thru fs
-    (println "Pass-thru: Run functions on filesystem (fs). Next task will run with the same fs.")))
