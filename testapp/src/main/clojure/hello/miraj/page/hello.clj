@@ -22,22 +22,22 @@
     (h/html
      (h/require '[miraj.paper :as paper :refer [button card]]
                 '[miraj.iron :as iron :refer [icon icons]])
-     (h/import '(styles hello world)
-               '(scripts polyfill-lite-min))
+     (h/import '(hello.styles hello world))
+               ;;'(hello.scripts polyfill-lite-min))
      (h/body
       (h/h1 "HELLO MIRAJ!")
-      (h/div #_(iron/icon {:icon "menu"}))
+      (h/div (iron/icon {:icon "menu"}))
       (h/div ::cards
              (miraj.paper/card {:heading "Hello, you ol' Card!"}
                          (h/div {:class "card-content"} "Some content")
                          (h/div {:class "card-actions"}
-                                (paper/button {:raised nil} "Some action")))))))
+                                (miraj.paper/button {:raised nil} "Some action")))))))
 
 (defn homepage
   []
   (do
-    (println "HTML: ")
-    (println (h/serialize home-html))
+    ;; (println "HTML: ")
+    ;; (println (h/serialize home-html))
 
     (-> home-html
         (with-meta home-meta)

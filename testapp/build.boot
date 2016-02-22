@@ -147,8 +147,12 @@
 
 (def configs #{'resources/styles 'bower/config-map 'polymer/config-map})
 
+;;(def build #{"build"})
+
 (task-options!
+ ;;target {:dir build}
  b/config {:nss configs}
+ b/config-rm {:nss configs}
  b/install {:nss configs}
  ;; mrj/config {:root "build/exploded-app"
  ;;             :configs {'components.greetings
@@ -174,6 +178,6 @@
         (gae/servlets :save save)
         ;; (builtin/sift :include #{#"class$"} ;; retain transient clj files
         ;;               :move {#"(.*class$)" "WEB-INF/classes/$1"})
-        (gae/assets :type :clj) ;; :odir "WEB-INF/classes")
-        (builtin/target :dir #{"build"}) ;; :no-clean false)
-        #_(gae/run)))
+        (gae/assets :type :clj))) ;; :odir "WEB-INF/classes")
+        ;; (builtin/target)
+        ;; #_(gae/run)))

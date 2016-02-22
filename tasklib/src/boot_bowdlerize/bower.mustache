@@ -1,5 +1,7 @@
 (ns {{config-ns}})
 
 {{#config}}
-(def {{name}} {:uri "{{uri}}}")
+(def {{name}} {:uri "{{uri}}"{{#polymer}} :kw {{kw}} :polymer true{{/polymer}}
+     {{#css}} :type :css{{/css}}{{#js}} :type :js{{/js}}{{#html}} :type :html{{/html}}})
+
 {{/config}}

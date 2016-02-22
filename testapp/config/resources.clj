@@ -1,5 +1,6 @@
 (ns resources)
 
 (def styles
-  {'styles.foo/hello {:uri "styles/hello.css"}
-   'styles.foo/goodbye {:uri "styles/foo.css"}})
+  {'hello.styles/hello {:uri "styles/hello.css"}
+   'hello.styles/world {:uri "styles/foo.bar" :css true}
+   'hello.scripts/main {:uri "scripts/app.js"}})
