@@ -70,14 +70,13 @@
   (let [resources (filter #(symbol? (first %)) configs)
         ;; _ (println "RESOURCES: " resources)
         normresources (into [] (for [resource resources]
-                                 (do (println "RESOURCE: " resource)
+                                 (do ;; (println "RESOURCE: " resource)
                                  (merge (last resource)
                                         (if (str/ends-with? (:uri (last resource)) ".js")
                                           {:js true})
                                         (if (str/ends-with? (:uri (last resource)) ".css")
                                           {:css true})
-                                        {:bower-pkg "foo"
-                                         :ns (namespace (first resource))
+                                        {:ns (namespace (first resource))
                                          :name (name (first resource))}))))
         ;; _ (println "NORMRESOURCES: " normresources)
         simples (filter #(and (not (symbol? (first %)))
@@ -169,41 +168,65 @@
     ;; (pp/pprint res)
     res))
 
+(defn- merge-config-maps
+  [ms]
+  (let [ks (set (map #(symbol (:config-ns %)) ms))
+        merged-maps (into []
+                          (for [k (seq ks)]
+                            (let [specs (filter #(= k (symbol (:config-ns %))) ms)
+                                  bodies (flatten (into [] (map #(:config %) specs)))]
+                              {:config-ns k
+                               :config (vec bodies)})))]
+    ;; (println "MERGED MAPS:")
+    ;; (pp/pprint merged-maps)
+    merged-maps))
+
 (boot/deftask config
   [c nss NSS #{sym} "config namespaced sym"
    b base PATH str "bower components base path, default: bower_components"
-   o outdir PATH str "install dir, default: WEB-INF/classes"]
+   o outdir PATH str "install dir, default: classes"]
   (let [nss   (if nss nss #_(if (namespace nss)
                               nss (throw (Exception. (str "config symbol must be namespaced"))))
                   #{'bower/config})
         base (if base base "bower_components")
-        outdir   (if (nil? outdir) "WEB-INF/classes" outdir)
+        outdir   (if (nil? outdir) "classes" outdir)
         tgt     (boot/tmp-dir!)
         pod-env (update-in (boot/get-env) [:dependencies] conj '[cheshire "5.5.0"])
         config-pod    (future (pod/make-pod pod-env))]
     (boot/with-pre-wrap [fileset]
       (boot/empty-dir! tgt)
-      (doseq [config-sym nss]
-        (let [config-ns (symbol (namespace config-sym))]
-          ;; (println "CONFIG-SYM: " config-sym)
-          ;; (println "CONFIG-NS: " config-ns)
-          (require config-ns)
-          (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
-          (let [config-var (if-let [v (resolve config-sym)]
-                             v (throw (Exception. (str "can't find config var for: " config-sym))))
-                configs (deref config-var)
-                config-maps (get-config-maps base configs)
-                ;; _ (println "config-maps: " (count config-maps))
-                ;; _ (pp/pprint config-maps)
-                config-maps (apply prep-for-stencil config-maps)]
-            (doseq [config-map config-maps]
-              (do (println "config-map for stencil: " config-map)
-                (let [config-file-name (str (ns->filestr (-> config-map :config-ns)) ".clj")
-                      config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
-                                                       config-map)
-                      out-file (doto (io/file tgt (str outdir "/" config-file-name))
-                                 io/make-parents)]
-                  (spit out-file config-file)))))))
+      (let [config-maps
+            (into []
+                  (flatten
+                   (for [config-sym nss]
+                        (let [config-ns (symbol (namespace config-sym))]
+                          ;; (println "CONFIG-SYM: " config-sym)
+                          ;; (println "CONFIG-NS: " config-ns)
+                          (require config-ns)
+                          (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
+                          (let [config-var (if-let [v (resolve config-sym)]
+                                             v (throw
+                                                (Exception.
+                                                 (str "can't find config var for: " config-sym))))
+                                configs (deref config-var)
+                                config-specs (get-config-maps base configs)
+                                ;; _ (pp/pprint config-specs)
+                                config-specs (apply prep-for-stencil config-specs)
+                                ;; _ (println (format "config-specs for ns '%s: %s"
+                                ;;                    config-ns (count config-specs)))
+                                ]
+                            config-specs)))))
+            config-nss (merge-config-maps config-maps)]
+        ;; (println "CONFIG-MAPS: " (count config-nss))
+        ;; (pp/pprint config-nss)
+        (doseq [config-map config-nss]
+          (do ;; (println "config-map for stencil: " config-map)
+            (let [config-file-name (str (ns->filestr (-> config-map :config-ns)) ".clj")
+                  config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
+                                                   config-map)
+                  out-file (doto (io/file tgt (str outdir "/" config-file-name))
+                             io/make-parents)]
+              (spit out-file config-file)))))
         #_(util/warn (format "not a bower config ns: %s\n" n))
         (-> fileset (boot/add-resource tgt) boot/commit!))))
 
@@ -238,12 +261,12 @@
 
 (boot/deftask install
   [n nss NSS #{sym} "config namespace"
-   o outdir PATH str "install dir, default: WEB-INF/classes"]
+   o outdir PATH str "install dir, default: bower_components"]
   ;;(let [nss   (if (empty? nss) #{'bower} nss)
   (let [nss   (if nss nss #_(if (namespace nss)
                               nss (throw (Exception. (str "config symbol must be namespaced"))))
                   #{'bower/config})
-        outdir   (if (nil? outdir) "WEB-INF/classes" outdir)
+        outdir   (if (nil? outdir) "bower_components" outdir)
         local-bower  (io/as-file "./node_modules/bower/bin/bower")
         global-bower (io/as-file "/usr/local/bin/bower")
         shcmd        (cond (.exists local-bower) (.getPath local-bower)
