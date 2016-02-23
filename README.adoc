@@ -47,7 +47,13 @@ specs.  An example of such a file for bower resources follows.
 `boot-bowdlerize` uses the bower package name to install it and read
 its metadata, so our config maps uses package names as keys.  You can
 use any names for both namespace and interned syms; you will list them
-in your `build.boot` file, as explained below.
+in your `build.boot` file, as explained below.  In this example, the
+`moment` package metadata has enough information for use to extract
+the resource URI automatically, so all we need to provide is the
+symbol we want to use for it at runtime.  But the `materialize`
+package bundles several components, and its metadata is not
+sufficiently rich to support inference to their URIs.  So we have to
+explicitly indicate them in the `:bundles` maps.
 
 [source,clojure]
 .bower.clj
@@ -55,36 +61,48 @@ in your `build.boot` file, as explained below.
 (ns bower)
 
 (def config-map
-   ;; for well-behaved bower packages, entry is pkgname -> runtime-sym
-  {"moment" 'hello.scripts/moment
-   ;; for bower pkgs with bundled artifacts, make config explicit
-   "materialize" [{:ns 'hello.styles :name 'materialize
-                   :uri "bower_components/Materialize/bin/materialize.css"}
-                  {:ns 'hello.scripts :name 'materialize
-                   :uri "bower_components/Materialize/bin/materialize.js"}]})
+  [{:bower "moment"
+    :runtime 'hello.scripts/moment}
+   {:bower "materialize"
+    :bundles [{:runtime 'hello.styles/materialize
+               :uri "bower_components/Materialize/bin/materialize.css"}
+              {:runtime 'hello.scripts/materialize
+               :uri "bower_components/Materialize/bin/materialize.js"}]}])
 ----
 
-You can also specify local resources that do not rely on boot, e.g.
+You can also specify resources that do not rely on bower, e.g.
 
 [source,clojure]
 .resources.clj
 ----
 (ns resources)
 (def scripts
-  {'hello.scripts/jquery {:uri "https://code.jquery.com/jquery-2.1.1.min.js"}})
+  [{:runtime 'hello.scripts/jquery
+    :uri "https://code.jquery.com/jquery-2.1.1.min.js"}])
 (def statics
-  {'hello.resources/statics {:uri "target"}})
+  [{:runtime 'hello.resources/statics :uri "target"}])
 (def styles
-  {'hello.styles/app {:uri "styles/app.css"}
-   'hello.scripts/app {:uri "scripts/app.js"}})
+  [{:runtime 'hello.styles/app :uri "styles/app.css"}
+   {:runtime 'hello.scripts/app :uri "scripts/app.js"}])
 ----
 
-Here the structure is reversed: we already know what we need to know,
-we're just using these config maps as an indirection mechanism, so our
-keys are runtime namespaced syms pointing to resource filesystem
-paths.
+You can organize your config maps however you please; for example
+here's the same info, reorganized:
 
-Notice that in the above two examples three runtime namespaces were
+[source,clojure]
+.hello-stuff.clj
+----
+(ns resources)
+(def scripts
+  [{:runtime 'hello.scripts/jquery :uri "https://code.jquery.com/jquery-2.1.1.min.js"}
+   {:runtime 'hello.scripts/app :uri "scripts/app.js"}])
+(def statics
+  [{:runtime 'hello.resources/statics :uri "target"}])
+(def styles
+  [{:runtime 'hello.styles/app :uri "styles/app.css"}])
+----
+
+Notice that in the above examples three runtime namespaces were
 used, `hello.scripts`, `hello.styles`, and `hello.resources`.  The
 last one, used to bind `hello.resources/statics` to "target", is an
 example of using the `bowdlerize` mechanism to specify a runtime
