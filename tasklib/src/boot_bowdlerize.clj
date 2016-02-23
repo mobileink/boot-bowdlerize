@@ -68,38 +68,48 @@
 (defn- normalize-configs
   [base configs]
   ;; (println "normalize-configs: " configs)
-  (let [bowers (filter #(:bower %) configs)
+  (let [bowers (filter #(or (:bower %) (:polymer %)) configs)
         ;; _ (println "BOWERS: " bowers)
-        normbowers (flatten (into [] (for [bower bowers]
-                              (if (map? (:runtime bower))
-                                (into [] (for [[sym uri] (:runtime bower)]
+        normbowers (flatten
+                    (into []
+                          (for [bower bowers]
+                            (cond
+
+                              (:uri bower)
+                              (into [] (for [[sym uri] (:runtime bower)]
                                            (do ;; (println "FOO: "bower)
                                              (merge bower
                                                     {:runtime sym
                                                      :uri uri
                                                      :ns (namespace sym)
                                                      :name (name sym)}))))
-                                (do ;; (println "BAR: " bower)
 
-                                (let [m (bower-meta (:bower bower))
+                              (vector? (:bundles bower))
+                              (for [bundle (:bundles bower)]
+                                (merge {:bower (:bower bower)
+                                        :ns (namespace (:runtime bundle))
+                                        :name (name (:runtime bundle))}
+                                       bundle))
+
+                              (symbol? (:runtime bower))
+                              (let [m (bower-meta (:bower bower))
                                       kw (keyword (-> m :latest :name))
                                       ;; _ (println "kw: " kw)
-                                      poly (str/starts-with? (:bower bower) "Polymer")
+                                      ;; poly (str/starts-with? (:bower bower) "Polymer")
                                       ;; _ (println "poly: " poly)
                                       uris (bower->uris base m)]
                                   (merge bower (if (> (count uris) 1)
                                                  (throw (Exception.
-                                                         (str "too many uris for bower pkg '"
+                                                         (str "bower pkg '"
                                                               (:bower bower)
-                                                              "'; run bower info -j on the package and create a config for each latest.main entry"))))
+                                                              "' bundles multiple components; run bower info -j on the package and create a config for each latest.main entry"))))
                                          {:ns (namespace (:runtime bower))
                                           :name (name (:runtime bower))}
-                                         ;; (if (str/ends-with? (first uris) ".js")
-                                         ;;   {:js true})
-                                         ;; (if (str/ends-with? (first uris) ".css")
-                                         ;;   {:css true})
-                                         (if poly {:polymer {:kw kw}})
-                                         {:uri (first uris)})))))))
+                                         (if (:polymer bower) {:kw kw})
+                                         {:uri (first uris)}))
+
+                              :else (throw (Exception. (str ":bower config map must have [:runtime sym] or [:bundles vec] entry")
+                            ))))))
 
                                     ;; #_(merge bower
                                     ;;        {:ns (namespace (:runtime bower))
@@ -345,9 +355,10 @@
       (boot/empty-dir! tgt)
       (doseq [config-sym config-syms]
         (let [config-ns (symbol (namespace config-sym))]
+          (if (nil? config-ns) (throw (Exception. (str "config symbols must be namespaced"))))
           (require config-ns)
-          (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
           ;; (println "CONFIG-NS 2: " config-ns)
+          (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
           ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
           (let [config-var (if-let [v (resolve config-sym)]
                              v (throw (Exception. (str "can't find config var for: " config-sym))))
@@ -357,18 +368,18 @@
 
                 bower-pkgs (filter #(:bower %) configs)
                 ;; _ (println "bower-pkgs: " bower-pkgs)
-                ;; bower-pkgs (keys (deref (resolve bower-sym)))
                 ]
-            (doseq [pkg bower-pkgs]
-              (let [c [shcmd "install" "-j" (:bower pkg) :dir (.getPath tgt)]]
-                ;; (println "bower cmd: " c)
-                (pod/with-eval-in @bower-pod
-                  (require '[clojure.java.shell :refer [sh]]
-                           '[clojure.java.io :as io]
-                           '[clojure.string :as str]
-                           '[cheshire.core :as json])
-                  (sh ~@c)))))))
-        (-> fileset (boot/add-resource tgt) boot/commit!))))
+            (if (not (empty? bower-pkgs))
+              (doseq [pkg bower-pkgs]
+                (let [c [shcmd "install" "-j" (:bower pkg) :dir (.getPath tgt)]]
+                  ;; (println "bower cmd: " c)
+                  (pod/with-eval-in @bower-pod
+                    (require '[clojure.java.shell :refer [sh]]
+                             '[clojure.java.io :as io]
+                             '[clojure.string :as str]
+                             '[cheshire.core :as json])
+                    (sh ~@c))))))))
+    (-> fileset (boot/add-resource tgt) boot/commit!))))
 
 (boot/deftask info
   [p package PACKAGE str "bower package"

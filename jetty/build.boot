@@ -28,9 +28,9 @@
          '[boot.pod :as pod]
          '[pandeiro.boot-http    :refer [serve]])
 
-(def configs #{'resources/styles
-               'resources/scripts
+(def configs #{'resources/scripts
                'resources/statics
+               'resources/styles
                'bower/config-map})
 
 (task-options!

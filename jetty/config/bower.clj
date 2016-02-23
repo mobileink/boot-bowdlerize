@@ -4,7 +4,7 @@
   [{:bower "moment"
     :runtime 'hello.scripts/moment}
    {:bower "materialize"
-    :runtime {'hello.styles/materialize
-              "bower_components/Materialize/bin/materialize.css"
-              'hello.scripts/materialize
-              "bower_components/Materialize/bin/materialize.js"}}])
+    :bundles [{:runtime 'hello.styles/materialize
+               :uri "bower_components/Materialize/bin/materialize.css"}
+              {:runtime 'hello.scripts/materialize
+               :uri "bower_components/Materialize/bin/materialize.js"}]}])
