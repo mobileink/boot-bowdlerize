@@ -6,7 +6,8 @@
           :dependencies   '[[org.clojure/clojure "RELEASE"]
                             [cheshire "5.5.0"]
                             [stencil "0.5.0"]
-                            [boot/core "RELEASE" :scope "test"]
+                            [boot "RELEASE" :scope "test"]
+                            [boot/aether "2.5.5"]
                             [adzerk/boot-test "RELEASE" :scope "test"]])
 
 (task-options!

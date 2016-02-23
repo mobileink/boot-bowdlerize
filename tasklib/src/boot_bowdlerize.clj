@@ -4,6 +4,7 @@
   (:require [boot.core :as boot]
             [boot.pod :as pod]
             [boot.util :as util]
+            [boot.aether :as aether]
             [stencil.core :as stencil]
             [cheshire.core :as json]
             [clojure.java.shell :refer [sh]]
@@ -318,6 +319,87 @@
                            (boot/rm fs [bower-file]))))))]
         (boot/commit! newfs)))))
 
+(boot/deftask show
+  "show build-time dependencies"
+  [n config-syms      CONFIG-SYMS #{sym} "config namespace"
+   b bower            bool  "Print project bower component (build-time) dependency graph."
+   w webjars          bool  "Print project webjars (build-time) dependency graph."]
+  ;; (doseq [jar (sort (pod/jars-in-dep-order (boot/get-env)))]
+  ;;   (println "JAR: " (.getName jar))))
+
+  (doseq [config-sym config-syms]
+    (let [config-ns (symbol (namespace config-sym))]
+      (if (nil? config-ns) (throw (Exception. (str "config symbols must be namespaced"))))
+      (require config-ns)
+      ;; (println "Install CONFIG-NS: " config-ns)
+      (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
+      ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
+
+      (let [config-var (if-let [v (resolve config-sym)]
+                         v (throw (Exception. (str "can't find config var for: " config-sym))))
+            ;; _ (println "config-var: " config-var)
+
+            configs (deref config-var)
+            ;; _ (println "configs:")
+            ;; _ (pp/pprint configs)
+
+            webjar-coords (map #(:webjar %) (filter #(:webjar %) configs))
+            ;; _ (println "webjar-coords:")
+            ;; _ (pp/pprint webjar-coords)
+
+            pod-env (update-in (boot/get-env) [:dependencies]
+                               #(identity %2)
+                               (concat webjar-coords
+                                       '[[boot/aether "2.5.5"]
+                                         [boot/pod "2.5.5"]
+                                         [boot/core "2.5.5"]]))
+            ;; _ (println "POD-ENV deps:")
+            ;; _ (println (:dependencies pod-env))
+
+            pod    (future (pod/make-pod pod-env))]
+        (pod/with-eval-in @pod
+          (require '[boot.aether :as aether])
+          (require '[boot.core :as boot])
+          (require '[boot.pod :as pod])
+          (require '[clojure.pprint :as pp])
+          (let [stripped-env (update-in pod/env [:dependencies]
+                                        (fn [old] (filter
+                                                   (fn [dep]
+                                                     (and
+                                                      (not= "boot" (namespace (first dep)))
+                                                      (not= "org.clojure" (namespace (first dep)))))
+                                                   old)))]
+            ;; (println "stripped env:")
+            ;; (pp/pprint stripped-env)
+            (if ~webjars
+              (println (aether/dep-tree stripped-env)))))))))
+
+            ;;     bower-pkgs (filter #(or (:bower %) (:polymer %)) configs)
+            ;;     _ (println "bower-pkgs: " bower-pkgs)
+
+            ;;     webjars (filter #(:webjar %) configs)
+            ;;     _ (println "webjars: " webjars)
+
+            ;;     ]
+            ;; (cond
+            ;;   (not (empty? webjars))
+            ;;   (doseq [webjar webjars]
+            ;;     (do (println "WEBJAR: " webjar)
+            ;;         (let [dep (pod/resolve-dependency-jar (boot/get-env) (:webjar webjar))]
+            ;;           (println "DEP: " dep))))
+
+            ;;   (not (empty? bower-pkgs))
+            ;;   (doseq [pkg bower-pkgs]
+            ;;     (let [c [shcmd "install" "-j" (or (:bower pkg) (:polymer pkg)) :dir (.getPath tgt)]]
+            ;;       ;; (println "bower cmd: " c)
+            ;;       (pod/with-eval-in @bower-pod
+            ;;         (require '[clojure.java.shell :refer [sh]]
+            ;;                  #_'[clojure.java.io :as io]
+            ;;                  #_'[clojure.string :as str]
+            ;;                  #_'[cheshire.core :as json])
+            ;;         (sh ~@c))))))))
+;)
+
 (boot/deftask install
   [n config-syms CONFIG-SYMS #{sym} "config namespace"
    o outdir PATH str "install dir, default: bower_components"]
@@ -340,19 +422,30 @@
         (let [config-ns (symbol (namespace config-sym))]
           (if (nil? config-ns) (throw (Exception. (str "config symbols must be namespaced"))))
           (require config-ns)
-          ;; (println "CONFIG-NS 2: " config-ns)
+          (println "Install CONFIG-NS: " config-ns)
           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
           ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
           (let [config-var (if-let [v (resolve config-sym)]
                              v (throw (Exception. (str "can't find config var for: " config-sym))))
-                ;; _ (println "config-var: " config-var)
+                _ (println "config-var: " config-var)
                 configs (deref config-var)
-                ;; _ (println "configs: " configs)
+                _ (println "configs: " configs)
 
                 bower-pkgs (filter #(or (:bower %) (:polymer %)) configs)
-                ;; _ (println "bower-pkgs: " bower-pkgs)
+                _ (println "bower-pkgs: " bower-pkgs)
+
+                webjars (filter #(:webjar %) configs)
+                _ (println "webjars: " webjars)
+
                 ]
-            (if (not (empty? bower-pkgs))
+            (cond
+              (not (empty? webjars))
+              (doseq [webjar webjars]
+                (do (println "WEBJAR: " webjar)
+                    (let [dep (pod/resolve-dependency-jar (boot/get-env) (:webjar webjar))]
+                      (println "DEP: " dep))))
+
+              (not (empty? bower-pkgs))
               (doseq [pkg bower-pkgs]
                 (let [c [shcmd "install" "-j" (or (:bower pkg) (:polymer pkg)) :dir (.getPath tgt)]]
                   ;; (println "bower cmd: " c)
