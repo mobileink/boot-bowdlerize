@@ -37,6 +37,9 @@ Goals:
 
 == usage
 
+Fork/clone this project, install `tasklib`, and build and run `jetty`.
+See the READMEs in those subdirs.
+
 The basic idea is that we define config data in ordinary clojure
 namespaces (source files), and at build time we use those namespaces
 to generate runtime config source files.  One way to do this,
