@@ -1,0 +1,17 @@
+/* hello.css */
+
+h1 {text-align:center}
+
+#cards {
+    @apply(--layout-vertical);
+    @apply(--center-justified);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+paper-card {
+    width: 100%;
+    margin-bottom: 16px;
+}
+.card-actions {text-align:center;margin-left:auto;margin-right:auto;}

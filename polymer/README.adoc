@@ -1,0 +1,31 @@
+# polymer
+
+a bowdlerized polymer webapp
+
+Polymer components are configured in `config/polymer.clj`.
+
+Bowdlerized component references are in `src/hello/page/hello.clj`.
+For example, instead of
+
+[source,clojure]
+----
+   [:script {:src "bower_components/webcomponentsjs/webcomponents.min.js"}]
+----
+
+we write the bowdlerized version:
+
+[source,clojure]
+----
+(ns ...  (:require [polymer.polyfill.min :as polyfill] ...))
+...
+   [:script {:src (:uri polyfill/lite)}]
+----
+
+
+## Running
+
+[source,shell]
+----
+$ boot build
+$ boot serve -R wait
+----
