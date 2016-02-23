@@ -86,13 +86,13 @@
 
                               (vector? (:bundles bower))
                               (for [bundle (:bundles bower)]
-                                (merge {:bower (:bower bower)
+                                (merge {:bower (or (:bower bower) (:polymer bower))
                                         :ns (namespace (:runtime bundle))
                                         :name (name (:runtime bundle))}
                                        bundle))
 
                               (symbol? (:runtime bower))
-                              (let [m (bower-meta (:bower bower))
+                              (let [m (bower-meta (or (:bower bower) (:polymer bower)))
                                       kw (keyword (-> m :latest :name))
                                       ;; _ (println "kw: " kw)
                                       ;; poly (str/starts-with? (:bower bower) "Polymer")
@@ -101,7 +101,7 @@
                                   (merge bower (if (> (count uris) 1)
                                                  (throw (Exception.
                                                          (str "bower pkg '"
-                                                              (:bower bower)
+                                                              (or (:bower bower) (:polymer bower))
                                                               "' bundles multiple components; run bower info -j on the package and create a config for each latest.main entry"))))
                                          {:ns (namespace (:runtime bower))
                                           :name (name (:runtime bower))}
@@ -116,7 +116,7 @@
                                     ;;         :name (name (:runtime bower))})
         ;; _ (println "NORMBOWERS: " normbowers)
 
-        resources (filter #(not (:bower %)) configs)
+        resources (filter #(not (or (:bower %) (:polymer %))) configs)
         ;; _ (println "RESOURCES: " resources)
 
         normresources (into [] (for [resource resources]
@@ -160,24 +160,7 @@
   "convert config map to data map suitable for stencil"
   [bower-base configs]
   ;; (println "get-config-maps: " configs)
-  (let [
-        ;; nss (set (flatten (for [[k v] configs]
-        ;;                     (if (string? k)
-        ;;                       (cond
-        ;;                         (symbol? v) (let [ns (namespace v)]
-        ;;                                       (if ns (symbol ns)
-        ;;                                           (throw (Exception. "var must be namespaced"))))
-        ;;                         (map? v) (:ns v)
-        ;;                         (vector? v)
-        ;;                         (into [] (for [item v] (:ns item)))
-        ;;                         ;;FIXME: better error msg
-        ;;                         :else (throw (Exception. "config val must be map or vector of maps")))
-        ;;                       (if (symbol? k)
-        ;;                         (namespace k)
-        ;;                         (throw (Exception. "config entries must be {sym {:uri str}} or {str config}")
-        ;;                       ))))))
-        ;; _ (println "nss: " nss)
-        normal-configs (normalize-configs bower-base configs)
+  (let [normal-configs (normalize-configs bower-base configs)
         ;; _ (println "NORMAL-CONFIGS:")
         ;; _ (pp/pprint normal-configs)
         ;;now add missing uris
@@ -185,10 +168,10 @@
                               (do ;; (println "ns-config: " ns-config)
                               (if (-> ns-config :uri)
                                 ns-config
-                                (let [m (bower-meta (:bower ns-config))
+                                (let [m (bower-meta (or (:bower ns-config) (:polymer ns-config)))
                                       kw (keyword (-> m :latest :name))
                                       ;; _ (println "kw: " kw)
-                                      poly (str/starts-with? (:bower ns-config) "Polymer")
+                                      ;; poly (str/starts-with? (:bower ns-config) "Polymer")
                                       ;; _ (println "poly: " poly)
                                       uris (bower->uris bower-base m)]
                                   (merge ns-config (if (> (count uris) 1)
@@ -201,7 +184,7 @@
                                                       ;;   {:js true})
                                                       ;; (if (str/ends-with? (first uris) ".css")
                                                       ;;   {:css true})
-                                                      (if poly {:polymer {:kw kw}})
+                                                      (if (:polymer ns-config) {:polymer {:kw kw}})
                                                       {:uri (first uris)}))))))))]
     ;; (println "xxxx config-map: " config-map)
     config-map))
@@ -366,18 +349,18 @@
                 configs (deref config-var)
                 ;; _ (println "configs: " configs)
 
-                bower-pkgs (filter #(:bower %) configs)
+                bower-pkgs (filter #(or (:bower %) (:polymer %)) configs)
                 ;; _ (println "bower-pkgs: " bower-pkgs)
                 ]
             (if (not (empty? bower-pkgs))
               (doseq [pkg bower-pkgs]
-                (let [c [shcmd "install" "-j" (:bower pkg) :dir (.getPath tgt)]]
+                (let [c [shcmd "install" "-j" (or (:bower pkg) (:polymer pkg)) :dir (.getPath tgt)]]
                   ;; (println "bower cmd: " c)
                   (pod/with-eval-in @bower-pod
                     (require '[clojure.java.shell :refer [sh]]
-                             '[clojure.java.io :as io]
-                             '[clojure.string :as str]
-                             '[cheshire.core :as json])
+                             #_'[clojure.java.io :as io]
+                             #_'[clojure.string :as str]
+                             #_'[cheshire.core :as json])
                     (sh ~@c))))))))
     (-> fileset (boot/add-resource tgt) boot/commit!))))
 
