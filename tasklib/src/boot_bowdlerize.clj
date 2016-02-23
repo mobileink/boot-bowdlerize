@@ -287,6 +287,116 @@
               (spit out-file config-file))))
       (-> fileset (boot/add-resource tgt) boot/commit!))))
 
+(boot/deftask webjars
+  "temporary task, for developing webjar config"
+  [c config-syms CONFIG-SYMS #{sym} "config namespaced sym"
+   b base PATH str "bower components base path, default: bower_components"
+   o outdir PATH str "install dir, default: classes"]
+  (let [config-syms   (if config-syms config-syms #_(if (namespace config-syms)
+                              config-syms (throw (Exception. (str "config symbol must be namespaced"))))
+                  #{'bower/config})
+        base (if base base "bower_components")
+        outdir   (if (nil? outdir) "classes" outdir)
+        tgt     (boot/tmp-dir!)
+        pod-env (update-in (boot/get-env) [:dependencies] conj '[cheshire "5.5.0"])
+        config-pod    (future (pod/make-pod pod-env))]
+
+  (doseq [config-sym config-syms]
+    (let [config-ns (symbol (namespace config-sym))]
+      (if (nil? config-ns) (throw (Exception. (str "config symbols must be namespaced"))))
+      (require config-ns)
+      ;; (println "Install CONFIG-NS: " config-ns)
+      (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
+      ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
+
+      (let [config-var (if-let [v (resolve config-sym)]
+                         v (throw (Exception. (str "can't find config var for: " config-sym))))
+            ;; _ (println "config-var: " config-var)
+
+            configs (deref config-var)
+            ;; _ (println "configs:")
+            ;; _ (pp/pprint configs)
+
+            webjar-coords (map #(:webjar %) (filter #(:webjar %) configs))
+            ;; _ (println "webjar-coords:")
+            ;; _ (pp/pprint webjar-coords)
+
+            pod-env (update-in (boot/get-env) [:dependencies]
+                               #(identity %2)
+                               (concat webjar-coords
+                                       '[[boot/aether "2.5.5"]
+                                         [boot/pod "2.5.5"]
+                                         [boot/core "2.5.5"]]))
+            ;; _ (println "POD-ENV deps:")
+            ;; _ (println (:dependencies pod-env))
+
+            pod    (future (pod/make-pod pod-env))]
+        (pod/with-eval-in @pod
+          (require '[boot.aether :as aether])
+          (require '[boot.core :as boot])
+          (require '[boot.pod :as pod])
+          (require '[clojure.pprint :as pp])
+          (let [stripped-env (update-in pod/env [:dependencies]
+                                        (fn [old] (filter
+                                                   (fn [dep]
+                                                     (and
+                                                      (not= "boot" (namespace (first dep)))
+                                                      (not= "org.clojure" (namespace (first dep)))))
+                                                   old)))
+                ;; _ (println "stripped env:")
+                ;; _ (pp/pprint stripped-env)
+                alljars (pod/jars-in-dep-order pod/env)
+                webjars (pod/jars-in-dep-order stripped-env)]
+
+            (println "ALLJARS:")
+            (doseq [jar alljars] (println (.getName jar)))
+
+            (println "WEBJARS:")
+            (doseq [webjar webjars] (println (.getName webjar)))
+
+            #_(println (aether/dep-tree stripped-env))
+            )))))))
+
+
+  #_(boot/with-pre-wrap [fileset]
+      (boot/empty-dir! tgt)
+      (let [config-maps
+            (into []
+                  (flatten
+                   (for [config-sym config-syms]
+                        (let [config-ns (symbol (namespace config-sym))]
+                          ;; (println "CONFIG-NS: " config-ns)
+                          (require config-ns)
+                          ;; (doseq [[ivar isym] (ns-interns config-ns)] (println "interned: " ivar isym))
+                          (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
+                          (let [config-var (if-let [v (resolve config-sym)]
+                                             v (throw
+                                                (Exception.
+                                                 (str "can't find config var for: " config-sym))))
+                                configs (deref config-var)
+                                config-specs (get-config-maps base configs)
+                                ;; _ (pp/pprint config-specs)
+                                config-specs (apply prep-for-stencil config-specs)
+                                ;; _ (println (format "config-specs for ns '%s: %s"
+                                ;;                    config-ns (count config-specs)))
+                                ]
+                            config-specs)))))
+            ;; _ (println "CONFIG-MAPS: " config-maps)
+            config-maps (merge-config-maps config-maps)
+            config-maps (typify config-maps)]
+        ;; (println "CONFIG-MAPS: " (count config-maps))
+        ;; (pp/pprint config-maps)
+        (doseq [config-map config-maps]
+            (let [config-file-name (str outdir "/" (ns->filestr (-> config-map :config-ns)) ".clj")
+                  ;; _ (println "writing: " config-file-name)
+                  config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
+                                                   config-map)
+                  out-file (doto (io/file tgt config-file-name)
+                             io/make-parents)]
+              (spit out-file config-file))))
+      (-> fileset (boot/add-resource tgt) boot/commit!))
+;;))
+
 ;;FIXME: make rm an option to config?
 (boot/deftask config-rm
   "remove bower config files from target"

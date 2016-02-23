@@ -1,11 +1,10 @@
-(def +project+ 'tmp.boot-bowdlwerize/compojure)
+;;(def +project+ 'tmp.boot-bowdlwerize/jetty)
 (def +version+ "0.1.0-SNAPSHOT")
 
 (set-env!
 ;; :asset-paths #{"target"}
  :resource-paths #{"resources/public" "target/classes"}
  :source-paths #{"src" "config"}
-;; :target-path "target"
  :repositories {"clojars" "https://clojars.org/repo"
                 "maven-central" "http://mvnrepository.com"
                 "central" "http://repo1.maven.org/maven2/"}
@@ -38,7 +37,7 @@
  b/config {:config-syms configs}
  b/config-rm {:config-syms configs}
  b/install {:config-syms configs}
- pom  {:project     +project+
+ pom  {;;:project     +project+
        :version     +version+
        :description "boot-bowdlerize compojure example"
        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
