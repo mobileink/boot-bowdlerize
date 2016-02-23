@@ -221,7 +221,7 @@
         ;; (pp/pprint config-nss)
         (doseq [config-map config-nss]
             (let [config-file-name (str outdir "/" (ns->filestr (-> config-map :config-ns)) ".clj")
-                  _ (println "writing: " config-file-name)
+                  ;; _ (println "writing: " config-file-name)
                   config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
                                                    config-map)
                   out-file (doto (io/file tgt config-file-name)
