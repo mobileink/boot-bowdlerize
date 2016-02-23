@@ -115,6 +115,8 @@ tag.
                :uri "bower_components/paper-input/paper-input-char-counter.html"}]}])
 ----
 
+A sample Polymer app is under construction.
+
 === non-bower
 
 You can also specify resources that do not rely on bower, e.g.
