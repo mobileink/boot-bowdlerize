@@ -39,7 +39,7 @@
         ;;            '[clojure.java.io :as io]
         ;;            '[clojure.string :as str]
         ;;            '[cheshire.core :as json])
-        _ (println "bower-meta: " pkg)
+        ;; _ (println "bower-meta: " pkg)
         info (sh shcmd "info" "-j" pkg)
         j (json/parse-string (:out info) true)
         ]
@@ -67,9 +67,9 @@
 
 (defn- normalize-configs
   [base configs]
-  (println "normalize-configs: " configs)
+  ;; (println "normalize-configs: " configs)
   (let [bowers (filter #(:bower %) configs)
-        _ (println "BOWERS: " bowers)
+        ;; _ (println "BOWERS: " bowers)
         normbowers (flatten (into [] (for [bower bowers]
                               (if (map? (:runtime bower))
                                 (into [] (for [[sym uri] (:runtime bower)]
@@ -83,9 +83,9 @@
 
                                 (let [m (bower-meta (:bower bower))
                                       kw (keyword (-> m :latest :name))
-                                      _ (println "kw: " kw)
+                                      ;; _ (println "kw: " kw)
                                       poly (str/starts-with? (:bower bower) "Polymer")
-                                      _ (println "poly: " poly)
+                                      ;; _ (println "poly: " poly)
                                       uris (bower->uris base m)]
                                   (merge bower (if (> (count uris) 1)
                                                  (throw (Exception.
@@ -104,13 +104,13 @@
                                     ;; #_(merge bower
                                     ;;        {:ns (namespace (:runtime bower))
                                     ;;         :name (name (:runtime bower))})
-        _ (println "NORMBOWERS: " normbowers)
+        ;; _ (println "NORMBOWERS: " normbowers)
 
         resources (filter #(not (:bower %)) configs)
-        _ (println "RESOURCES: " resources)
+        ;; _ (println "RESOURCES: " resources)
 
         normresources (into [] (for [resource resources]
-                                 (do (println "RESOURCE: " resource)
+                                 (do ;; (println "RESOURCE: " resource)
                                      (merge resource
                                             ;; (if (str/ends-with? (:uri resource) ".js")
                                             ;;   {:js true})
@@ -118,7 +118,7 @@
                                             ;;   {:css true})
                                             {:ns (namespace (:runtime resource))
                                              :name (name (:runtime resource))}))))
-        _ (println "NORMRESOURCES: " normresources)
+        ;; _ (println "NORMRESOURCES: " normresources)
 
         simples (filter #(and (not (symbol? (first %)))
                               (or (symbol? (last %)) (map? (last %)))) configs)
@@ -126,10 +126,10 @@
                (merge {:bower k}
                       (condp apply [v] symbol? {:ns (symbol (namespace v)) :name (symbol (name v))}
                              map?    v)))
-        _ (println "NORMSIMPLES: " normsimples)
+        ;; _ (println "NORMSIMPLES: " normsimples)
 
         compounds (filter #(vector? (:runtime %)) configs)
-        _ (println "COMPOUNDS: " compounds)
+        ;; _ (println "COMPOUNDS: " compounds)
         normcomp (flatten (into [] (for [[pkg cfgs] compounds]
                                      (into [] (for [cfg cfgs]
                                                 (do ;;(println "CFG: " cfg)
@@ -139,17 +139,17 @@
                                                  ;; (if (str/ends-with? (:uri cfg) ".css")
                                                  ;;   {:css true})
                                                  {:bower pkg} cfg)))))))
-        _ (println "NORMCOMPOUNDS: " normcomp)
+        ;; _ (println "NORMCOMPOUNDS: " normcomp)
 
         normed (concat normcomp normsimples normresources normbowers)
-        _ (println "NORMED: " normed)
+        ;; _ (println "NORMED: " normed)
         ]
     normed))
 
 (defn- get-config-maps
   "convert config map to data map suitable for stencil"
   [bower-base configs]
-  (println "get-config-maps: " configs)
+  ;; (println "get-config-maps: " configs)
   (let [
         ;; nss (set (flatten (for [[k v] configs]
         ;;                     (if (string? k)
@@ -168,18 +168,18 @@
         ;;                       ))))))
         ;; _ (println "nss: " nss)
         normal-configs (normalize-configs bower-base configs)
-        _ (println "NORMAL-CONFIGS:")
-        _ (pp/pprint normal-configs)
+        ;; _ (println "NORMAL-CONFIGS:")
+        ;; _ (pp/pprint normal-configs)
         ;;now add missing uris
         config-map (into [] (for [ns-config normal-configs]
-                              (do (println "ns-config: " ns-config)
+                              (do ;; (println "ns-config: " ns-config)
                               (if (-> ns-config :uri)
                                 ns-config
                                 (let [m (bower-meta (:bower ns-config))
                                       kw (keyword (-> m :latest :name))
-                                      _ (println "kw: " kw)
+                                      ;; _ (println "kw: " kw)
                                       poly (str/starts-with? (:bower ns-config) "Polymer")
-                                      _ (println "poly: " poly)
+                                      ;; _ (println "poly: " poly)
                                       uris (bower->uris bower-base m)]
                                   (merge ns-config (if (> (count uris) 1)
                                                      (throw (Exception.
@@ -193,7 +193,7 @@
                                                       ;;   {:css true})
                                                       (if poly {:polymer {:kw kw}})
                                                       {:uri (first uris)}))))))))]
-    (println "xxxx config-map: " config-map)
+    ;; (println "xxxx config-map: " config-map)
     config-map))
 
 (defn- ns->filestr
@@ -202,11 +202,11 @@
 
 (defn prep-for-stencil
   [& configs]
-  (println "prep-for-stencil: " configs)
+  ;; (println "prep-for-stencil: " configs)
   (let [nss (set (map #(-> % :ns) configs))
-        _ (println "nss: " nss)
+        ;; _ (println "nss: " nss)
         res (into [] (for [ns- nss]
-                       (do (println "ns- " ns-)
+                       (do ;; (println "ns- " ns-)
                        (let [ns-cfgs (filter #(= ns- (-> % :ns)) configs)]
                          ;; (println "XXXXXXXXXXXXXXXX config-ns: " ns-)
                          {:config-ns ns-
@@ -219,7 +219,7 @@
 
 (defn- merge-config-maps
   [ms]
-  (println "merge-config-maps: " ms)
+  ;; (println "merge-config-maps: " ms)
   (let [ks (set (map #(symbol (:config-ns %)) ms))
         merged-maps (into []
                           (for [k (seq ks)]
@@ -234,7 +234,7 @@
 (defn- typify
   [config-maps]
   (for [cfg config-maps]
-    (do (println "TYPIFY: " cfg)
+    (do ;;(println "TYPIFY: " cfg)
         (merge cfg
                {:config (for [config (:config cfg)]
                           (merge config
@@ -262,7 +262,7 @@
                   (flatten
                    (for [config-sym config-syms]
                         (let [config-ns (symbol (namespace config-sym))]
-                          (println "CONFIG-NS: " config-ns)
+                          ;; (println "CONFIG-NS: " config-ns)
                           (require config-ns)
                           ;; (doseq [[ivar isym] (ns-interns config-ns)] (println "interned: " ivar isym))
                           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
@@ -296,16 +296,17 @@
 ;;FIXME: make rm an option to config?
 (boot/deftask config-rm
   "remove bower config files from target"
-  [n nss NSS #{sym} "config namespace"]
+  [c config-syms CONFIG-SYMS #{sym} "config namespaced sym"]
+  ;; [n nss NSS #{sym} "config namespace"]
   ;; (println "config-rm: " nss)
-  (let [nss   (if (empty? nss) #{'bower} nss)
+  (let [config-syms   (if (empty? config-syms) #{'bower} config-syms)
         tgt     (boot/tmp-dir!)
         pod-env (update-in (boot/get-env) [:dependencies] conj '[cheshire "5.5.0"])
         config-pod    (future (pod/make-pod pod-env))
         ]
     (boot/with-pre-wrap [fileset]
       (let [newfs
-            (loop [nsx (set (map #(symbol (namespace %)) nss)) fs fileset]
+            (loop [nsx (set (map #(symbol (namespace %)) config-syms)) fs fileset]
               (if (empty? nsx)
                 fs
                 (let [;;_ (println "foo" nsx)
