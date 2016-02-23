@@ -88,6 +88,8 @@ resources, except `:polymer` replaces `:bower`, and for bundles a
 the user-specified `:runtime` symbol for the component and its HTML
 tag.
 
+A sample Polymer app may be found in the `polymer` subdirectory.
+
 [source,clojure]
 .polymer.clj
 ----
@@ -119,8 +121,6 @@ tag.
                :kw :paper-input-char-counter
                :uri "bower_components/paper-input/paper-input-char-counter.html"}]}])
 ----
-
-A sample Polymer app is under construction.
 
 === non-bower
 
