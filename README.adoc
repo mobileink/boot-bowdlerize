@@ -39,11 +39,14 @@ Goals:
 
 The basic idea is that we define config data in ordinary clojure
 namespaces (source files), and at build time we use those namespaces
-to generate runtime config source files.
+to generate runtime config source files.  One way to do this,
+illustrated by the testapps in this project, is to use a `config`
+directory on the classpath to hold build-time config specs.
 
-One way to do this, illustrated by the testapps in this project, is to
-use a `config` directory on the classpath to hold build-time config
-specs.  An example of such a file for bower resources follows.
+
+=== bower
+
+An example of such a file for bower resources follows.
 `boot-bowdlerize` uses the bower package name to install it and read
 its metadata, so our config maps uses package names as keys.  You can
 use any names for both namespace and interned syms; you will list them
@@ -70,6 +73,50 @@ explicitly indicate them in the `:bundles` maps.
                :uri "bower_components/Materialize/bin/materialize.js"}]}])
 ----
 
+=== polymer
+
+`boot-bowdlerize` began life as a tool to help write
+https://www.polymer-project.org/1.0/[Polymer] webapps in Clojure.  A
+config map for Polymer resources looks just like one for bower
+resources, except `:polymer` replaces `:bower`, and for bundles a
+`:kw` entry must be supplied.  The latter ensures correct mapping from
+the user-specified `:runtime` symbol for the component and its HTML
+tag.
+
+[source,clojure]
+.polymer.clj
+----
+(ns polymer)
+
+(def config-map
+  [{:polymer "PolymerElements/iron-icon" :runtime 'miraj.iron/icon}
+   {:polymer "PolymerElements/paper-button" :runtime 'miraj.paper/button}
+   {:polymer "PolymerElements/paper-input"
+    :bundles [{:runtime 'miraj.paper/input
+               :kw :paper-input
+               :uri "bower_components/paper-input/paper-input.html"}
+              {:runtime 'miraj.paper.input/textarea
+               :kw :paper-textarea
+               :uri "bower_components/paper-input/paper-textarea.html"}
+              {:runtime 'miraj.paper.input/behavior
+               :kw :paper-input-behavior
+               :uri "bower_components/paper-input/paper-input-behavior.html"}
+              {:runtime 'miraj.paper.input/container
+               :kw :paper-input-container
+               :uri "bower_components/paper-input/paper-input-container.html"}
+              {:runtime 'miraj.paper.input/error
+               :kw :paper-input-error
+               :uri "bower_components/paper-input/paper-input-error.html"}
+              {:runtime 'miraj.paper.input/addon-behavior
+               :kw :paper-input-addon-behavior
+               :uri "bower_components/paper-input/paper-input-addon-behavior.html"}
+              {:runtime 'miraj.paper.input/char-counter
+               :kw :paper-input-char-counter
+               :uri "bower_components/paper-input/paper-input-char-counter.html"}]}])
+----
+
+=== non-bower
+
 You can also specify resources that do not rely on bower, e.g.
 
 [source,clojure]
@@ -85,6 +132,12 @@ You can also specify resources that do not rely on bower, e.g.
   [{:runtime 'hello.styles/app :uri "styles/app.css"}
    {:runtime 'hello.scripts/app :uri "scripts/app.js"}])
 ----
+
+Here `resources/statics` is an example of using the `bowdlerize`
+mechanism to specify a runtime configuration parameter rather than a
+web resource.  In this case, our `jetty` testapp handler uses
+`hello.resources/statics` to set the `:root` parameter of the
+`route/files` function to "target".
 
 You can organize your config maps however you please; for example
 here's the same info, reorganized:
@@ -102,18 +155,12 @@ here's the same info, reorganized:
   [{:runtime 'hello.styles/app :uri "styles/app.css"}])
 ----
 
-Notice that in the above examples three runtime namespaces were
-used, `hello.scripts`, `hello.styles`, and `hello.resources`.  The
-last one, used to bind `hello.resources/statics` to "target", is an
-example of using the `bowdlerize` mechanism to specify a runtime
-configuration parameter rather than a web resource.  In this case, our
-`jetty` testapp handler uses `hello.resources/statics` to set the
-`:root` parameter of the `route/files` function.
-
-You can use any namespace, anywhere in any config file.  When
-`boot-bowlderize` processes your build-time config files, it will
-merge them appropriately, so in this case it will produce three runtime
-config files:
+Notice that in the above example three runtime namespaces were used,
+`hello.scripts`, `hello.styles`, and `hello.resources`.  You can use
+any namespace, anywhere in any config file.  When `boot-bowlderize`
+processes your build-time config files, it will merge them
+appropriately, so in this case it will produce three runtime config
+files:
 
 [source,clojure]
 .hello/resources.clj
