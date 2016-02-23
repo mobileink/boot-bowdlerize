@@ -2,7 +2,7 @@
 
 (def config-map
   [{:bower "moment"
-    :runtime 'hello.scripts/momentx}
+    :runtime 'hello.scripts/moment}
    {:bower "materialize"
     :runtime {'hello.styles/materialize
               "bower_components/Materialize/bin/materialize.css"

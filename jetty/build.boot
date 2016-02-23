@@ -28,36 +28,30 @@
          '[boot.pod :as pod]
          '[pandeiro.boot-http    :refer [serve]])
 
-(def configs #{'resources/styles ;; 'resources/scripts 'resources/statics
+(def configs #{'resources/styles
+               'resources/scripts
+               'resources/statics
                'bower/config-map})
 
 (task-options!
  serve {:handler 'compojure.handler/app}
  b/config {:config-syms configs}
  b/config-rm {:config-syms configs}
- b/install {:nss configs}
+ b/install {:config-syms configs}
  pom  {:project     +project+
        :version     +version+
        :description "boot-bowdlerize compojure example"
        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
 
 (deftask build
-  "build compojure sample app.  run b/install once first"
+  "build compojure sample app."
   []
-  (comp ;; (sift :include #{#"^target/classes"} :invert true)
+  (comp
    (b/install) (b/config-rm) (b/config) (target)))
 
 (deftask rebuild
   "build compojure sample app.  run b/install once first"
   []
-  (comp ;; (sift :include #{#"^target/classes"} :invert true)
+  (comp
    (b/config-rm) (b/config) (target :no-clean true)))
 
-;; (deftask run
-;;   "run boot-http"
-;;   []
-;;   (let [run-pod (pod/make-pod (update-in (get-env) [:dependencies] conj '[boot/pod "2.5.5" :scope "provided"]))]
-;;     (pod/with-eval-in run-pod
-;;       (require 'clojure.java.io)
-;;       (add-classpath "file://classes")
-;;       (comp (serve :reload) (wait)))))
