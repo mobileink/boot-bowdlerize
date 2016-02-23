@@ -7,3 +7,144 @@ language.  `boot-bowdlerize` tries to do the same for `bower`,
 excising those nasty bits bits of Javascript and JSON to produce a
 Clojurized version suitable for those offended by obscene languages.
 
+`boot-bowdlerize` is not tied to bower, however.  It's really a an
+implementation of a simple technique for generating namespaced runtime
+configuration information at build-time.
+
+== motivation
+
+Webapp development requires coordination between filesystem
+configuration (location and structure of resource directories, etc.)
+and app configuration (using filesystem paths in <link> elements, for
+example.)  You might also want to use build config info at runtime,
+e.g. you might want to have an `admin` webpage that dumps version info
+about dependencies, tools, etc. used to build the app.
+
+Goals:
+
+* use indirection, so e.g. if you change your filesystem layout you only have to change config info in one place
+
+* keep all config info in one place at build time, but:
+
+* use namespaces to partition runtime config data, rather than putting
+  everything into on giant config map
+
+* make config info available at both build time and compile time
+
+* dynamically generate runtime config info at build time where possible, e.g. pull version info from resource metadata instead of hardcoding it
+
+* etc.
+
+== usage
+
+The basic idea is that we define config data in ordinary clojure
+namespaces (source files), and at build time we use those namespaces
+to generate runtime config source files.
+
+One way to do this, illustrated by the testapps in this project, is to
+use a `config` directory on the classpath to hold build-time config
+specs.  An example of such a file for bower resources follows.
+`boot-bowdlerize` uses the bower package name to install it and read
+its metadata, so our config maps uses package names as keys.  You can
+use any names for both namespace and interned syms; you will list them
+in your `build.boot` file, as explained below.
+
+[source,clojure]
+.bower.clj
+----
+(ns bower)
+
+(def config-map
+   ;; for well-behaved bower packages, entry is pkgname -> runtime-sym
+  {"moment" 'hello.scripts/moment
+   ;; for bower pkgs with bundled artifacts, make config explicit
+   "materialize" [{:ns 'hello.styles :name 'materialize
+                   :uri "bower_components/Materialize/bin/materialize.css"}
+                  {:ns 'hello.scripts :name 'materialize
+                   :uri "bower_components/Materialize/bin/materialize.js"}]})
+----
+
+You can also specify local resources that do not rely on boot, e.g.
+
+[source,clojure]
+.resources.clj
+----
+(ns resources)
+(def scripts
+  {'hello.scripts/jquery {:uri "https://code.jquery.com/jquery-2.1.1.min.js"}})
+(def statics
+  {'hello.resources/statics {:uri "target"}})
+(def styles
+  {'hello.styles/app {:uri "styles/app.css"}
+   'hello.scripts/app {:uri "scripts/app.js"}})
+----
+
+Here the structure is reversed: we already know what we need to know,
+we're just using these config maps as an indirection mechanism, so our
+keys are runtime namespaced syms pointing to resource filesystem
+paths.
+
+Notice that in the above two examples three runtime namespaces were
+used, `hello.scripts`, `hello.styles`, and `hello.resources`.  The
+last one, used to bind `hello.resources/statics` to "target", is an
+example of using the `bowdlerize` mechanism to specify a runtime
+configuration parameter rather than a web resource.  In this case, our
+`jetty` testapp handler uses `hello.resources/statics` to set the
+`:root` parameter of the `route/files` function.
+
+You can use any namespace, anywhere in any config file.  When
+`boot-bowlderize` processes your build-time config files, it will
+merge them appropriately, so in this case it will produce three runtime
+config files:
+
+[source,clojure]
+.hello/resources.clj
+----
+(ns hello.resources)
+(def statics {:uri "target"})
+----
+
+[source,clojure]
+.hello/scripts.clj
+----
+(ns hello.scripts)
+(def materialize {:uri "bower_components/Materialize/bin/materialize.js" :type :js})
+(def moment {:uri "bower_components/moment/moment.js" :type :js})
+(def app {:uri "scripts/app.js" :type :js})
+(def jquery {:uri "https://code.jquery.com/jquery-2.1.1.min.js" :type :js})
+----
+
+[source,clojure]
+.hello/styles.clj
+----
+(ns hello.styles)
+(def materialize {:uri "bower_components/Materialize/bin/materialize.css" :type :css})
+(def app {:uri "styles/app.css" :type :css})
+----
+
+You configure `boot-bowdlerize` to put these somewhere on your runtime
+classpath so they become available to your app.  The default setting
+puts them in `target/classes`.
+
+=== build.boot
+
+Here's how you configure your `build.boot`:
+
+[source,clojure]
+.build.boot
+----
+:dependencies '[ ... [mobileink/boot-bowdlerize "0.1.0-SNAPSHOT" :scope "test"] ...]
+(require '[boot-bowdlerize :as b] ...)
+;; define the set of config data vars; must be on build-time classpath
+(def configs #{'resources/styles 'resources/scripts 'resources/statics 'bower/config-map})
+;; pass the vars to bowdlerize tasks
+(task-options!
+ b/config {:nss configs}
+ b/config-rm {:nss configs}  ;; prevents the buildtime sources from being copied to target
+ b/install {:nss configs}
+ ...
+----
+
+=== runtime
+
+You're generating source files so you have to make sure to set your classpath correctly.
