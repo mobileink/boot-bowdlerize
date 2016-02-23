@@ -1,0 +1,55 @@
+# webjar support
+
+
+== using webjars in clojure apps
+
+The problem with current solutions is that external stuff - like asset
+paths - pollutes the Clojure world.  `boot-bowdlerize` quarantines the
+hideosity, relegating it to meta-config files so that your app code
+can remain cleanly and purely clojuristic.
+
+=== ring
+
+You can use webjars with ring.  Hideous.  What if you're not using ring?
+
+
+See https://github.com/weavejester/ring-webjars[ring-webjars]
+
+See also http://www.webjars.org/documentation:
+
+Instructions for Ring (example app)
+Ring makes it easy to expose WebJars through the wrap-resource function. First add a Webjar as dependency to your application in the project.clj file, like:
+
+[source,clojure]
+----
+:dependencies [[org.webjars/bootstrap "3.1.0"]]
+----
+
+Then change your wrapper sequence to setup wrap-resource to look for assets in /META-INF/resources directories in JARs on the CLASSPATH:
+
+[source,clojure]
+----
+(def app
+  (-> handler
+    (wrap-resource "/META-INF/resources")))
+
+(defn -main []
+  (run-jetty app {:port (Integer/parseInt (or (System/getenv "PORT") "8080"))}))
+----
+Now you can reference a WebJar asset like:
+
+```
+<link rel='stylesheet' href='/webjars/bootstrap/3.1.0/css/bootstrap.min.css'>
+```
+
+WARNING: This is beyond hideous. -ed.
+
+Using clj-webjars
+
+Alternatively you can use clj-webjars to simplify assets integration. By relying on wrap-webjars ring middleware you can reference a WebJar asset like:
+
+```
+<link rel='stylesheet' href='assets/css/bootstrap.min.css'>
+```
+
+The right asset will be transparently accessed and served with proper HTTP caching behavior.
