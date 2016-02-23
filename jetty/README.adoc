@@ -1,19 +1,16 @@
-# compojure
-
-FIXME
+# jetty test app for boot-bowdlerize
 
 ## Prerequisites
 
-You will need [Leiningen][] 2.0.0 or above installed.
-
-[leiningen]: https://github.com/technomancy/leiningen
+boot
 
 ## Running
 
-To start a web server for the application, run:
+Fork/clone boot-bowdlerize.  Install the tasklib locally, `$ boot pom
+jar install`.  In the `jetty` testapp subdir (this one), run:
 
-    lein ring server
-
-## License
-
-Copyright © 2016 FIXME
+[source,shell]
+----
+$ boot build
+$ boot serve -R wait
+----
