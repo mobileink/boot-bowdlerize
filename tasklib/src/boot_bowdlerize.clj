@@ -347,21 +347,21 @@
         (let [config-ns (symbol (namespace config-sym))]
           (require config-ns)
           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
-          (println "CONFIG-NS 2: " config-ns)
+          ;; (println "CONFIG-NS 2: " config-ns)
           ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
           (let [config-var (if-let [v (resolve config-sym)]
                              v (throw (Exception. (str "can't find config var for: " config-sym))))
-                _ (println "config-var: " config-var)
+                ;; _ (println "config-var: " config-var)
                 configs (deref config-var)
-                _ (println "configs: " configs)
+                ;; _ (println "configs: " configs)
 
                 bower-pkgs (filter #(:bower %) configs)
-                _ (println "bower-pkgs: " bower-pkgs)
+                ;; _ (println "bower-pkgs: " bower-pkgs)
                 ;; bower-pkgs (keys (deref (resolve bower-sym)))
                 ]
             (doseq [pkg bower-pkgs]
               (let [c [shcmd "install" "-j" (:bower pkg) :dir (.getPath tgt)]]
-                (println "bower cmd: " c)
+                ;; (println "bower cmd: " c)
                 (pod/with-eval-in @bower-pod
                   (require '[clojure.java.shell :refer [sh]]
                            '[clojure.java.io :as io]
