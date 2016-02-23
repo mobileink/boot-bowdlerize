@@ -326,11 +326,11 @@
         (boot/commit! newfs)))))
 
 (boot/deftask install
-  [n nss NSS #{sym} "config namespace"
+  [n config-syms CONFIG-SYMS #{sym} "config namespace"
    o outdir PATH str "install dir, default: bower_components"]
-  ;;(let [nss   (if (empty? nss) #{'bower} nss)
-  (let [nss   (if nss nss #_(if (namespace nss)
-                              nss (throw (Exception. (str "config symbol must be namespaced"))))
+  ;;(let [config-syms   (if (empty? config-syms) #{'bower} config-syms)
+  (let [config-syms   (if config-syms config-syms #_(if (namespace config-syms)
+                              config-syms (throw (Exception. (str "config symbol must be namespaced"))))
                   #{'bower/config})
         outdir   (if (nil? outdir) "bower_components" outdir)
         local-bower  (io/as-file "./node_modules/bower/bin/bower")
@@ -343,21 +343,25 @@
         bower-pod    (future (pod/make-pod pod-env))]
     (boot/with-pre-wrap [fileset]
       (boot/empty-dir! tgt)
-      (doseq [config-sym nss]
+      (doseq [config-sym config-syms]
         (let [config-ns (symbol (namespace config-sym))]
           (require config-ns)
           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
-          ;; (println "CONFIG-NS 2: " config-ns)
+          (println "CONFIG-NS 2: " config-ns)
           ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
           (let [config-var (if-let [v (resolve config-sym)]
                              v (throw (Exception. (str "can't find config var for: " config-sym))))
+                _ (println "config-var: " config-var)
                 configs (deref config-var)
-                bower-pkgs (filter #(string? %) (keys configs))
-                ;; _ (println "bower-pkgs: " bower-pkgs)
+                _ (println "configs: " configs)
+
+                bower-pkgs (filter #(:bower %) configs)
+                _ (println "bower-pkgs: " bower-pkgs)
                 ;; bower-pkgs (keys (deref (resolve bower-sym)))
                 ]
             (doseq [pkg bower-pkgs]
-              (let [c [shcmd "install" "-j" pkg :dir (.getPath tgt)]]
+              (let [c [shcmd "install" "-j" (:bower pkg) :dir (.getPath tgt)]]
+                (println "bower cmd: " c)
                 (pod/with-eval-in @bower-pod
                   (require '[clojure.java.shell :refer [sh]]
                            '[clojure.java.io :as io]
