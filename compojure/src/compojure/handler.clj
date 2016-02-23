@@ -3,38 +3,43 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+            [hello.resources :as resources]
             [hello.scripts :as scripts]
             [hello.styles :as styles]))
 
 (defroutes app-routes
-  (GET "/" [] "HELLO World")
+  (GET "/hi" [] "HELLO World")
 
   ;; favicon:
   ;; <link rel="icon"
   ;;     type="image/png"
   ;;     href="http://example.com/myicon.png">
 
-  (GET "/foo" []
+  (GET "/" []
        (html [:head
               [:link {:href "http://fonts.googleapis.com/icon?family=Material+Icons"
                       :rel "stylesheet"}]
               ;; Import materialize.css
-              [:link {:type "text/css" :rel="stylesheet"
-                      :href (:uri styles/materialize)
-                      #_"css/materialize.min.css"
-                      :media "screen,projection"}]
+              [:link {:href (str (:uri styles/materialize))
+                      :rel "stylesheet"
+                      :type "css"}]
+              [:link {:href (str (:uri styles/app))
+                      :rel "stylesheet"
+                      :type "css"}]
 
               ;; <!--Let browser know website is optimized for mobile-->
               [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]]
              [:body
+              [:p "howdy"]
               ;; Import jQuery before materialize.js
               [:script {:type "text/javascript"
-                        :src "https://code.jquery.com/jquery-2.1.1.min.js"}]
+                        :src (:uri scripts/jquery)}]
               [:script {:type "text/javascript"
-                        :src (:uri scripts/materialize)
-                        #_"js/materialize.min.js"}]]))
+                        :src (:uri scripts/materialize)}]
+              [:script {:type "text/javascript"
+                        :src (:uri scripts/app)}]]))
 
-  (route/resources "/" :root "./")
+  (route/files "/" [:root (:uri resources/statics)])
 
   (route/not-found "Not Found"))
 

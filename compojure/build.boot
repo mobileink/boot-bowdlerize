@@ -2,9 +2,9 @@
 (def +version+ "0.1.0-SNAPSHOT")
 
 (set-env!
- :asset-paths #{"resources/public" "target"}
- :resource-paths #{"resources/public" "config"}
- :source-paths #{"src" "config" "target"}
+;; :asset-paths #{"target"}
+ :resource-paths #{"resources/public" "target/classes"}
+ :source-paths #{"src" "config"}
 ;; :target-path "target"
  :repositories {"clojars" "https://clojars.org/repo"
                 "maven-central" "http://mvnrepository.com"
@@ -12,7 +12,8 @@
  :dependencies   '[[org.clojure/clojure "1.8.0" :scope "provided"]
                    [hiccup "1.0.5"]
                    [pandeiro/boot-http          "0.7.1-SNAPSHOT" :scope "test"]
-                   [boot/core "2.5.2" :scope "provided"]
+                   [boot/core "2.5.5" :scope "provided"]
+                   [boot/pod "2.5.5" :scope "provided"]
                    [mobileink/boot-bowdlerize "0.1.0-SNAPSHOT" :scope "test"]
                    [compojure/compojure "1.4.0"]
                    [ring/ring-core "1.4.0"]
@@ -24,13 +25,15 @@
 
 (require '[boot-bowdlerize :as b]
          '[boot.task.built-in :as builtin]
+         '[boot.pod :as pod]
          '[pandeiro.boot-http    :refer [serve]])
 
-(def configs #{'resources/styles 'bower/config-map})
+(def configs #{'resources/styles 'resources/scripts 'resources/statics
+               'bower/config-map})
 
 (task-options!
  serve {:handler 'compojure.handler/app}
- b/config {:nss configs :outdir "./"}
+ b/config {:nss configs}
  b/config-rm {:nss configs}
  b/install {:nss configs}
  pom  {:project     +project+
@@ -39,6 +42,22 @@
        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
 
 (deftask build
-  "build compojure sample app"
+  "build compojure sample app.  run b/install once first"
   []
-  (comp (b/install) (b/config) (b/config-rm) (target)))
+  (comp ;; (sift :include #{#"^target/classes"} :invert true)
+   (b/install) (b/config-rm) (b/config) (target)))
+
+(deftask rebuild
+  "build compojure sample app.  run b/install once first"
+  []
+  (comp ;; (sift :include #{#"^target/classes"} :invert true)
+   (b/config-rm) (b/config) (target :no-clean true)))
+
+;; (deftask run
+;;   "run boot-http"
+;;   []
+;;   (let [run-pod (pod/make-pod (update-in (get-env) [:dependencies] conj '[boot/pod "2.5.5" :scope "provided"]))]
+;;     (pod/with-eval-in run-pod
+;;       (require 'clojure.java.io)
+;;       (add-classpath "file://classes")
+;;       (comp (serve :reload) (wait)))))
