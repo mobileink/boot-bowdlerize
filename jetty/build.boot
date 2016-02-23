@@ -28,13 +28,13 @@
          '[boot.pod :as pod]
          '[pandeiro.boot-http    :refer [serve]])
 
-(def configs #{'resources/styles 'resources/scripts 'resources/statics
+(def configs #{'resources/styles ;; 'resources/scripts 'resources/statics
                'bower/config-map})
 
 (task-options!
  serve {:handler 'compojure.handler/app}
- b/config {:nss configs}
- b/config-rm {:nss configs}
+ b/config {:config-syms configs}
+ b/config-rm {:config-syms configs}
  b/install {:nss configs}
  pom  {:project     +project+
        :version     +version+

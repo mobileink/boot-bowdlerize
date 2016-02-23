@@ -1,8 +1,10 @@
 (ns bower)
 
 (def config-map
-  {"moment" 'hello.scripts/moment
-   "materialize" [{:ns 'hello.styles :name 'materialize
-                   :uri "bower_components/Materialize/bin/materialize.css"}
-                  {:ns 'hello.scripts :name 'materialize
-                   :uri "bower_components/Materialize/bin/materialize.js"}]})
+  [{:bower "moment"
+    :runtime 'hello.scripts/momentx}
+   {:bower "materialize"
+    :runtime {'hello.styles/materialize
+              "bower_components/Materialize/bin/materialize.css"
+              'hello.scripts/materialize
+              "bower_components/Materialize/bin/materialize.js"}}])
