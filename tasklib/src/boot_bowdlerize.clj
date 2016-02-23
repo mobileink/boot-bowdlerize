@@ -39,6 +39,7 @@
         ;;            '[clojure.java.io :as io]
         ;;            '[clojure.string :as str]
         ;;            '[cheshire.core :as json])
+        _ (println "bower-meta: " pkg)
         info (sh shcmd "info" "-j" pkg)
         j (json/parse-string (:out info) true)
         ]
@@ -66,86 +67,133 @@
 
 (defn- normalize-configs
   [base configs]
-  ;; (println "normalize-configs: " configs)
-  (let [resources (filter #(symbol? (first %)) configs)
-        ;; _ (println "RESOURCES: " resources)
+  (println "normalize-configs: " configs)
+  (let [bowers (filter #(:bower %) configs)
+        _ (println "BOWERS: " bowers)
+        normbowers (flatten (into [] (for [bower bowers]
+                              (if (map? (:runtime bower))
+                                (into [] (for [[sym uri] (:runtime bower)]
+                                           (do ;; (println "FOO: "bower)
+                                             (merge bower
+                                                    {:runtime sym
+                                                     :uri uri
+                                                     :ns (namespace sym)
+                                                     :name (name sym)}))))
+                                (do ;; (println "BAR: " bower)
+
+                                (let [m (bower-meta (:bower bower))
+                                      kw (keyword (-> m :latest :name))
+                                      _ (println "kw: " kw)
+                                      poly (str/starts-with? (:bower bower) "Polymer")
+                                      _ (println "poly: " poly)
+                                      uris (bower->uris base m)]
+                                  (merge bower (if (> (count uris) 1)
+                                                 (throw (Exception.
+                                                         (str "too many uris for bower pkg '"
+                                                              (:bower bower)
+                                                              "'; run bower info -j on the package and create a config for each latest.main entry"))))
+                                         {:ns (namespace (:runtime bower))
+                                          :name (name (:runtime bower))}
+                                         ;; (if (str/ends-with? (first uris) ".js")
+                                         ;;   {:js true})
+                                         ;; (if (str/ends-with? (first uris) ".css")
+                                         ;;   {:css true})
+                                         (if poly {:polymer {:kw kw}})
+                                         {:uri (first uris)})))))))
+
+                                    ;; #_(merge bower
+                                    ;;        {:ns (namespace (:runtime bower))
+                                    ;;         :name (name (:runtime bower))})
+        _ (println "NORMBOWERS: " normbowers)
+
+        resources (filter #(not (:bower %)) configs)
+        _ (println "RESOURCES: " resources)
+
         normresources (into [] (for [resource resources]
-                                 (do ;; (println "RESOURCE: " resource)
-                                 (merge (last resource)
-                                        (if (str/ends-with? (:uri (last resource)) ".js")
-                                          {:js true})
-                                        (if (str/ends-with? (:uri (last resource)) ".css")
-                                          {:css true})
-                                        {:ns (namespace (first resource))
-                                         :name (name (first resource))}))))
-        ;; _ (println "NORMRESOURCES: " normresources)
+                                 (do (println "RESOURCE: " resource)
+                                     (merge resource
+                                            ;; (if (str/ends-with? (:uri resource) ".js")
+                                            ;;   {:js true})
+                                            ;; (if (str/ends-with? (:uri resource) ".css")
+                                            ;;   {:css true})
+                                            {:ns (namespace (:runtime resource))
+                                             :name (name (:runtime resource))}))))
+        _ (println "NORMRESOURCES: " normresources)
+
         simples (filter #(and (not (symbol? (first %)))
                               (or (symbol? (last %)) (map? (last %)))) configs)
         normsimples (for [[k v] simples]
-               (merge {:bower-pkg k}
+               (merge {:bower k}
                       (condp apply [v] symbol? {:ns (symbol (namespace v)) :name (symbol (name v))}
                              map?    v)))
-        ;; _ (println "NORMSIMPLES: " normsimples)
-        compounds (filter #(vector? (last %)) configs)
-        ;; _ (println "COMPOUNDS: " compounds)
+        _ (println "NORMSIMPLES: " normsimples)
+
+        compounds (filter #(vector? (:runtime %)) configs)
+        _ (println "COMPOUNDS: " compounds)
         normcomp (flatten (into [] (for [[pkg cfgs] compounds]
                                      (into [] (for [cfg cfgs]
                                                 (do ;;(println "CFG: " cfg)
                                                 (merge
-                                                 (if (str/ends-with? (:uri cfg) ".js")
-                                                   {:js true})
-                                                 (if (str/ends-with? (:uri cfg) ".css")
-                                                   {:css true})
-                                                 {:bower-pkg pkg} cfg)))))))
-        normed (concat normcomp normsimples normresources)
+                                                 ;; (if (str/ends-with? (:uri cfg) ".js")
+                                                 ;;   {:js true})
+                                                 ;; (if (str/ends-with? (:uri cfg) ".css")
+                                                 ;;   {:css true})
+                                                 {:bower pkg} cfg)))))))
+        _ (println "NORMCOMPOUNDS: " normcomp)
+
+        normed (concat normcomp normsimples normresources normbowers)
+        _ (println "NORMED: " normed)
         ]
     normed))
 
 (defn- get-config-maps
   "convert config map to data map suitable for stencil"
   [bower-base configs]
-  ;; (println "get-config-maps")
-  (let [nss (set (flatten (for [[k v] configs]
-                            (if (string? k)
-                              (cond
-                                (symbol? v) (let [ns (namespace v)]
-                                              (if ns (symbol ns)
-                                                  (throw (Exception. "var must be namespaced"))))
-                                (map? v) (:ns v)
-                                (vector? v)
-                                (into [] (for [item v] (:ns item)))
-                                ;;FIXME: better error msg
-                                :else (throw (Exception. "config val must be map or vector of maps")))
-                              (if (symbol? k)
-                                (namespace k)
-                                (throw (Exception. "config entries must be {sym {:uri str}} or {str config}")
-                              ))))))
+  (println "get-config-maps: " configs)
+  (let [
+        ;; nss (set (flatten (for [[k v] configs]
+        ;;                     (if (string? k)
+        ;;                       (cond
+        ;;                         (symbol? v) (let [ns (namespace v)]
+        ;;                                       (if ns (symbol ns)
+        ;;                                           (throw (Exception. "var must be namespaced"))))
+        ;;                         (map? v) (:ns v)
+        ;;                         (vector? v)
+        ;;                         (into [] (for [item v] (:ns item)))
+        ;;                         ;;FIXME: better error msg
+        ;;                         :else (throw (Exception. "config val must be map or vector of maps")))
+        ;;                       (if (symbol? k)
+        ;;                         (namespace k)
+        ;;                         (throw (Exception. "config entries must be {sym {:uri str}} or {str config}")
+        ;;                       ))))))
         ;; _ (println "nss: " nss)
         normal-configs (normalize-configs bower-base configs)
-        ;; _ (println "NORMAL-CONFIGS:")
-        ;; _ (pp/pprint normal-configs)
+        _ (println "NORMAL-CONFIGS:")
+        _ (pp/pprint normal-configs)
         ;;now add missing uris
         config-map (into [] (for [ns-config normal-configs]
+                              (do (println "ns-config: " ns-config)
                               (if (-> ns-config :uri)
                                 ns-config
-                                (let [m (bower-meta (:bower-pkg ns-config))
+                                (let [m (bower-meta (:bower ns-config))
                                       kw (keyword (-> m :latest :name))
-                                      ;; _ (println "kw: " kw)
-                                      poly (str/starts-with? (:bower-pkg ns-config) "Polymer")
-                                      ;;_ (println "poly: " poly)
+                                      _ (println "kw: " kw)
+                                      poly (str/starts-with? (:bower ns-config) "Polymer")
+                                      _ (println "poly: " poly)
                                       uris (bower->uris bower-base m)]
                                   (merge ns-config (if (> (count uris) 1)
                                                      (throw (Exception.
                                                              (str "too many uris for bower pkg '"
-                                                             (:bower-pkg ns-config)
+                                                             (:bower ns-config)
                                                              "'; run bower info -j on the package and create a config for each latest.main entry")))
                                                      (merge
-                                                      (if (str/ends-with? (first uris) ".js")
-                                                        {:js true})
-                                                      (if (str/ends-with? (first uris) ".css")
-                                                        {:css true})
+                                                      ;; (if (str/ends-with? (first uris) ".js")
+                                                      ;;   {:js true})
+                                                      ;; (if (str/ends-with? (first uris) ".css")
+                                                      ;;   {:css true})
                                                       (if poly {:polymer {:kw kw}})
-                                                      {:uri (first uris)})))))))]
+                                                      {:uri (first uris)}))))))))]
+    (println "xxxx config-map: " config-map)
     config-map))
 
 (defn- ns->filestr
@@ -154,22 +202,24 @@
 
 (defn prep-for-stencil
   [& configs]
-  ;; (println "prep-for-stencil: " configs)
+  (println "prep-for-stencil: " configs)
   (let [nss (set (map #(-> % :ns) configs))
-        ;; _ (println "nss: " nss)
+        _ (println "nss: " nss)
         res (into [] (for [ns- nss]
+                       (do (println "ns- " ns-)
                        (let [ns-cfgs (filter #(= ns- (-> % :ns)) configs)]
                          ;; (println "XXXXXXXXXXXXXXXX config-ns: " ns-)
                          {:config-ns ns-
                           :config
                           (into [] (for [ns-cfg ns-cfgs]
-                                     ns-cfg))})))]
+                                     ns-cfg))}))))]
     ;; (println "FOR STENCIL:")
     ;; (pp/pprint res)
     res))
 
 (defn- merge-config-maps
   [ms]
+  (println "merge-config-maps: " ms)
   (let [ks (set (map #(symbol (:config-ns %)) ms))
         merged-maps (into []
                           (for [k (seq ks)]
@@ -181,12 +231,24 @@
     ;; (pp/pprint merged-maps)
     merged-maps))
 
+(defn- typify
+  [config-maps]
+  (for [cfg config-maps]
+    (do (println "TYPIFY: " cfg)
+        (merge cfg
+               {:config (for [config (:config cfg)]
+                          (merge config
+                                 (if (str/ends-with? (:uri config) ".js")
+                                   {:js true})
+                                 (if (str/ends-with? (:uri config) ".css")
+                                   {:css true})))}))))
+
 (boot/deftask config
-  [c nss NSS #{sym} "config namespaced sym"
+  [c config-syms CONFIG-SYMS #{sym} "config namespaced sym"
    b base PATH str "bower components base path, default: bower_components"
    o outdir PATH str "install dir, default: classes"]
-  (let [nss   (if nss nss #_(if (namespace nss)
-                              nss (throw (Exception. (str "config symbol must be namespaced"))))
+  (let [config-syms   (if config-syms config-syms #_(if (namespace config-syms)
+                              config-syms (throw (Exception. (str "config symbol must be namespaced"))))
                   #{'bower/config})
         base (if base base "bower_components")
         outdir   (if (nil? outdir) "classes" outdir)
@@ -198,9 +260,9 @@
       (let [config-maps
             (into []
                   (flatten
-                   (for [config-sym nss]
+                   (for [config-sym config-syms]
                         (let [config-ns (symbol (namespace config-sym))]
-                          ;; (println "CONFIG-NS: " config-ns)
+                          (println "CONFIG-NS: " config-ns)
                           (require config-ns)
                           ;; (doseq [[ivar isym] (ns-interns config-ns)] (println "interned: " ivar isym))
                           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
@@ -216,10 +278,12 @@
                                 ;;                    config-ns (count config-specs)))
                                 ]
                             config-specs)))))
-            config-nss (merge-config-maps config-maps)]
-        ;; (println "CONFIG-MAPS: " (count config-nss))
-        ;; (pp/pprint config-nss)
-        (doseq [config-map config-nss]
+            ;; _ (println "CONFIG-MAPS: " config-maps)
+            config-maps (merge-config-maps config-maps)
+            config-maps (typify config-maps)]
+        ;; (println "CONFIG-MAPS: " (count config-maps))
+        ;; (pp/pprint config-maps)
+        (doseq [config-map config-maps]
             (let [config-file-name (str outdir "/" (ns->filestr (-> config-map :config-ns)) ".clj")
                   ;; _ (println "writing: " config-file-name)
                   config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
