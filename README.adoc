@@ -11,6 +11,8 @@ Clojurized version suitable for those offended by obscene languages.
 implementation of a simple technique for generating namespaced runtime
 configuration information at build-time.
 
+You can think of `boot-bowdlerize` as a meta-configuration tool.
+
 == motivation
 
 Webapp development requires coordination between filesystem
