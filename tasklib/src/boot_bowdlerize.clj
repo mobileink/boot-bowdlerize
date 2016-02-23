@@ -200,9 +200,9 @@
                   (flatten
                    (for [config-sym nss]
                         (let [config-ns (symbol (namespace config-sym))]
-                          ;; (println "CONFIG-SYM: " config-sym)
                           ;; (println "CONFIG-NS: " config-ns)
                           (require config-ns)
+                          ;; (doseq [[ivar isym] (ns-interns config-ns)] (println "interned: " ivar isym))
                           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
                           (let [config-var (if-let [v (resolve config-sym)]
                                              v (throw
@@ -220,15 +220,14 @@
         ;; (println "CONFIG-MAPS: " (count config-nss))
         ;; (pp/pprint config-nss)
         (doseq [config-map config-nss]
-          (do ;; (println "config-map for stencil: " config-map)
-            (let [config-file-name (str (ns->filestr (-> config-map :config-ns)) ".clj")
+            (let [config-file-name (str outdir "/" (ns->filestr (-> config-map :config-ns)) ".clj")
+                  _ (println "writing: " config-file-name)
                   config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
                                                    config-map)
-                  out-file (doto (io/file tgt (str outdir "/" config-file-name))
+                  out-file (doto (io/file tgt config-file-name)
                              io/make-parents)]
-              (spit out-file config-file)))))
-        #_(util/warn (format "not a bower config ns: %s\n" n))
-        (-> fileset (boot/add-resource tgt) boot/commit!))))
+              (spit out-file config-file))))
+      (-> fileset (boot/add-resource tgt) boot/commit!))))
 
 ;;FIXME: make rm an option to config?
 (boot/deftask config-rm
@@ -241,22 +240,24 @@
         config-pod    (future (pod/make-pod pod-env))
         ]
     (boot/with-pre-wrap [fileset]
-      (let [newfs (loop [nsx nss fs fileset]
-                    (if (empty? nsx)
-                          fs
-                          (let [;;_ (println "foo" nsx)
-                                config-sym (first nsx)
-                                ;; _ (println "config-sym: " config-sym)
-                                config-ns (symbol (namespace config-sym))
-                                ;; _ (println "config-ns: " config-ns)
-                                ]
-                            (require config-ns)
-                            (if (not (find-ns config-ns))
-                              (throw (Exception. (str "can't find config ns"))))
-                            (let [bower-file-path (str (ns->filestr config-ns) ".clj")
-                                  bower-file (boot/tmp-get fs bower-file-path)]
-                              (recur (rest nsx)
-                                     (boot/rm fs [bower-file]))))))]
+      (let [newfs
+            (loop [nsx (set (map #(symbol (namespace %)) nss)) fs fileset]
+              (if (empty? nsx)
+                fs
+                (let [;;_ (println "foo" nsx)
+                      config-sym (first nsx)
+                      ;; _ (println "config-sym: " config-sym)
+                      config-ns config-sym
+                      ;; _ (println "config-ns: " config-ns (type config-ns))
+                      ]
+                  (require config-ns)
+                  (if (not (find-ns config-ns))
+                    (throw (Exception. (str "can't find config ns"))))
+                  (let [bower-file-path (str (ns->filestr config-ns) ".clj")
+                        bower-file (boot/tmp-get fs bower-file-path)]
+                    ;; (println "removing: " (str config-sym))
+                    (recur (rest nsx)
+                           (boot/rm fs [bower-file]))))))]
         (boot/commit! newfs)))))
 
 (boot/deftask install
@@ -279,11 +280,10 @@
       (boot/empty-dir! tgt)
       (doseq [config-sym nss]
         (let [config-ns (symbol (namespace config-sym))]
-          ;; (println "CONFIG-SYM: " config-sym)
-          ;; (println "CONFIG-NS: " config-ns)
           (require config-ns)
           (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
-          ;;(if (:bower (meta (find-ns config-ns)))
+          ;; (println "CONFIG-NS 2: " config-ns)
+          ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
           (let [config-var (if-let [v (resolve config-sym)]
                              v (throw (Exception. (str "can't find config var for: " config-sym))))
                 configs (deref config-var)
