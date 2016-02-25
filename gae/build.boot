@@ -2,9 +2,8 @@
 (def +version+ "0.1.0-SNAPSHOT")
 
 (set-env!
- :asset-paths #{"src/clj" "resources/public"} ;; "config"}
+ :asset-paths #{"src/clj" "resources/public"}
  :source-paths #{"config"}
- ;; :asset-paths #{"src/clj"}
  :repositories {"clojars" "https://clojars.org/repo"
                 "maven-central" "http://mvnrepository.com"
                 "central" "http://repo1.maven.org/maven2/"}
