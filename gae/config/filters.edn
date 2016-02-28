@@ -1,0 +1,10 @@
+{:filters [{:ns filter-a
+            :name "filter-a"
+            :display {:name "filter-a"}
+            :urls [{:url "/hello/*"}]
+            :desc {:text "filter-a"}}
+           {:ns filter-b
+            :name "filter-b"
+            :display {:name "filter-b"}
+            :urls [{:url "/hello/*"}]
+            :desc {:text "filter-b"}}]})

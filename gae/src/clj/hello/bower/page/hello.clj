@@ -1,4 +1,4 @@
-(ns hello.miraj.page.hello
+(ns hello.bower.page.hello
   (:require [hiccup.core :refer :all]
             [compojure.core :refer :all]
             [compojure.route :as route]
@@ -6,7 +6,8 @@
             [hello.scripts :as scripts]
             [hello.styles :as styles]))
 
-(def homepage
+(defn homepage
+  [who]
   (html [:head
          [:link {:href "http://fonts.googleapis.com/icon?family=Material+Icons"
                  :rel "stylesheet"}]
@@ -21,7 +22,7 @@
          ;; <!--Let browser know website is optimized for mobile-->
          [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]]
         [:body
-         [:p "Hello there"]
+         [:p (str "Waaal howdy there, " who "!")]
          ;; Import jQuery before materialize.js
          [:script {:type "text/javascript"
                    :src (:uri scripts/jquery)}]

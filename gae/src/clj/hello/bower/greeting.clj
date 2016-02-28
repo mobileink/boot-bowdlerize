@@ -1,6 +1,5 @@
-(ns hello.miraj.greeting
-  (:require [hello.miraj.page.hello :as h]
-            [miraj.markup :as miraj]
+(ns hello.bower.greeting
+  (:require [hello.bower.page.hello :as h]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.handler.dump :refer :all] ; ring-devel
@@ -11,8 +10,9 @@
 
 (defroutes app-routes
 
-  (GET "/greetings" []
-       h/homepage)
+  (GET "/hello/:you" [you :as rqst]
+       (do (println "handler hello.bower.greeting on " (str (.getRequestURL (:servlet-request rqst))))
+           (h/homepage you)))
 
   (route/not-found "NOT FOUND"))
 
