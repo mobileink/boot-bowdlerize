@@ -220,3 +220,39 @@ Here's how you configure your `build.boot`:
 === runtime
 
 You're generating source files so you have to make sure to set your classpath correctly.
+
+== experimenting
+
+Try this with e.g. the gae sample app:
+
+[source,shell]
+----
+$ boot b/bower b/resources show -f target
+$ boot b/bower b/resources sift -i ".*bowdlerize.edn" -a ".*ize.edn" show -f target
+----
+
+The first command here will show that the hidden master edn file
+`bowdlerize.edn` is in the fileset emitted by the `b/resources` task,
+but it will not be written to the build dir by `target`.  That's
+because `bowdlerize.edn` is marked for input but not output.  The
+`b/bower` and `b/resources` tasks read it as an input file, and then
+write it as an input file, but to a new fileset; remember that tasks
+that make any changes pass a _new_ fileset to the following task.  The
+`b/config` task, coming after the tasks that elaborate
+`bowdlerize.edn`, reads it as an input and then writes it as an ouput,
+after which target would write it.
+
+So in order to inspect `bowdlerize.edn` you must run the tasks that
+produce it and then change it to an output file before feeding it to
+`target`.  That's what the `sift` task in the second command above
+does.  The `-i` flag will include only those files matching its
+(regex) argument; the `-a` flag will add whatever matches its regex to
+the `assets` collection - those files marked for output.  The final
+task in the pipeline will receive a fileset with a single file marked
+for output: `bowdlerize.edn`.  This will print the hidden master edn
+file to the target dir so you can inspect it.
+
+
+== misc
+
+link:https://github.com/wilmoore/frontend-packagers[fe packagers]
