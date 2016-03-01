@@ -1,6 +1,7 @@
 (ns hello.greeting
   (:require [hello.page.hello :as h]
-            [hello.resources :as resources]
+            ;; uncomment if running on jetty
+            ;; [hello.resources :as resources]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.handler.dump :refer :all] ; ring-devel
@@ -14,15 +15,18 @@
   (GET "/" []
        h/homepage)
 
-  (route/files "/" [:root (:uri resources/statics)])
+  ;; uncomment if running on jetty
+  ;; (route/files "/" [:root (:uri resources/statics)])
 
   (route/not-found "NOT FOUND"))
 
-(def app
-  (wrap-defaults app-routes site-defaults))
+;; for jetty:
+;; (def app
+;;   (wrap-defaults app-routes site-defaults))
 
-;; (ring/defservice
-;;    (-> (routes
-;;         app-routes)
-;;        (wrap-defaults api-defaults)
-;;        ))
+;; for gae:
+(ring/defservice
+   (-> (routes
+        app-routes)
+       (wrap-defaults api-defaults)
+       ))

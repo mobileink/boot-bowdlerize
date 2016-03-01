@@ -1,6 +1,5 @@
 (ns hello.page.hello
   (:require [hiccup.core :refer :all]
-            [hello.resources :as resources]
             [hello.scripts :as scripts]
             [hello.styles :as styles]
             [polymer.polyfill.min :as polyfill]

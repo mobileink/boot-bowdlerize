@@ -1,0 +1,7 @@
+{:servlets [{:ns hello.greeting
+             :name "hello-servlet"
+             :display {:name "Bowdlerizing Hello Servlet"}
+             :desc {:text "blah blah"}
+             :url "/*"
+             :params [{:name "greeting" :val "Hello"}]
+             :load-on-startup {:order 3}}]}
