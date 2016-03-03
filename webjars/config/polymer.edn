@@ -1,0 +1,35 @@
+;; syntax:
+;; {<app-ns-sym> {<app-var-sym> <bower pkg>}}
+
+{polymer.iron {icon "PolymerElements/iron-icon"
+               icons "PolymerElements/iron-icons"
+               input "PolymerElements/iron-input"}
+ polymer.paper {button "PolymerElements/paper-button"
+                card "PolymerElements/paper-card"
+                input "PolymerElements/paper-input"}
+
+;; for bundled web components (with html tag):
+;; {<app-ns-sym> {:bower <bower pkg>
+;;                <app-var-sym> {<html-tag> <bower-repo-url>}}}
+ polymer.paper.input {:bower "PolymerElements/paper-input"
+                      textarea {:paper-textarea "bower_components/paper-input/paper-textarea.html"}
+                      behavior {:paper-input-behavior
+                                "bower_components/paper-input/paper-input-behavior.html"}
+                      container {:paper-input-container
+                                 "bower_components/paper-input/paper-input-container.html"}
+                      error {:paper-input-error
+                             "bower_components/paper-input/paper-input-error.html"}
+                      addon-behavior {:paper-input-addon-behavior
+                                      "bower_components/paper-input/paper-input-addon-behavior.html"}
+                      char-counter {:paper-input-char-counter
+                                    "bower_components/paper-input/paper-input-char-counter.html"}}
+
+;; for bundled resources (not web components, no html tag):
+;; {<app-ns-sym> {:bower <bower pkg>
+;;                <app-var-sym> <bower-repo-url>}}
+ polymer.polyfill {:bower "webcomponentsjs"
+                   heavy "bower_components/webcomponentsjs/webcomponents.js"
+                   lite "bower_components/webcomponentsjs/webcomponents-lite.js"}
+ polymer.polyfill.min {:bower "webcomponentsjs"
+                       heavy "bower_components/webcomponentsjs/webcomponents.min.js"
+                       lite "bower_components/webcomponentsjs/webcomponents-lite.min.js"}}

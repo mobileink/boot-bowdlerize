@@ -1,0 +1,407 @@
+BASE:  webjar_components
+tgt:  #object[java.io.File 0x3a74c8eb /Users/gar/.boot/cache/tmp/Users/gar/boot/boot-bowdlerize/webjars/1yrs/b291ux]
+DESTDIR:  /Users/gar/.boot/cache/tmp/Users/gar/boot/boot-bowdlerize/webjars/1yrs/b291ux/webjar_components
+WEBJARS:
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/webcomponentsjs/0.7.20/webcomponentsjs-0.7.20.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-Polymer-polymer/1.2.4/github-com-Polymer-polymer-1.2.4.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-iron-flex-layout/1.2.3/github-com-polymerelements-iron-flex-layout-1.2.3.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-iron-meta/1.1.1/github-com-polymerelements-iron-meta-1.1.1.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-icon/1.0.7/github-com-PolymerElements-iron-icon-1.0.7.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-image/1.0.4/github-com-PolymerElements-iron-image-1.0.4.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-font-roboto/1.0.1/github-com-PolymerElements-font-roboto-1.0.1.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-flex-layout/1.2.3/github-com-PolymerElements-iron-flex-layout-1.2.3.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-paper-styles/1.0.9/github-com-polymerelements-paper-styles-1.0.9.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-paper-material/1.0.2/github-com-PolymerElements-paper-material-1.0.2.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-paper-card/1.0.8/github-com-PolymerElements-paper-card-1.0.8.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-iron-a11y-keys-behavior/1.0.6/github-com-polymerelements-iron-a11y-keys-behavior-1.0.6.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-a11y-keys-behavior/1.0.6/github-com-PolymerElements-iron-a11y-keys-behavior-1.0.6.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-meta/1.1.1/github-com-PolymerElements-iron-meta-1.1.1.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-form-element-behavior/1.0.6/github-com-PolymerElements-iron-form-element-behavior-1.0.6.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-behaviors/1.0.11/github-com-PolymerElements-iron-behaviors-1.0.11.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-validatable-behavior/1.0.5/github-com-PolymerElements-iron-validatable-behavior-1.0.5.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-checked-element-behavior/1.0.3/github-com-PolymerElements-iron-checked-element-behavior-1.0.3.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-paper-behaviors/1.0.10/github-com-polymerelements-paper-behaviors-1.0.10.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-paper-material/1.0.2/github-com-polymerelements-paper-material-1.0.2.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-paper-ripple/1.0.2/github-com-polymerelements-paper-ripple-1.0.2.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-paper-button/1.0.11/github-com-PolymerElements-paper-button-1.0.11.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymer-polymer/1.2.4/github-com-polymer-polymer-1.2.4.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-iron-iconset-svg/1.0.9/github-com-polymerelements-iron-iconset-svg-1.0.9.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-polymerelements-iron-icon/1.0.7/github-com-polymerelements-iron-icon-1.0.7.jar
+Unpacking  /Users/gar/.m2/repository/org/webjars/bower/github-com-PolymerElements-iron-icons/1.1.3/github-com-PolymerElements-iron-icons-1.1.3.jar
+[34m[mbower.clj
+[34m[m[1;34mhello[m
+[34m├── [mgreeting.clj
+[34m└── [m[1;34mpage[m
+[34m    └── [mhello.clj
+[34m[mpolymer.clj
+[34m[mresources.clj
+[34m[m[1;34mscripts[m
+[34m└── [mapp.js
+[34m[m[1;34mstyles[m
+[34m├── [mapp.css
+[34m├── [mcards.css
+[34m├── [mfoo.css
+[34m└── [mhello.css
+[34m[m[1;34mwebjar_components[m
+[34m└── [m[1;34mMETA-INF[m
+[34m    ├── [m[1;34mmaven[m
+[34m    │   └── [m[1;34morg.webjars.bower[m
+[34m    │       ├── [m[1;34mgithub-com-Polymer-polymer[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-font-roboto[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-a11y-keys-behavior[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-behaviors[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-checked-element-behavior[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-flex-layout[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-form-element-behavior[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-icon[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-icons[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-image[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-meta[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-iron-validatable-behavior[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-paper-button[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-PolymerElements-paper-card[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-polymerelements-iron-iconset-svg[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-polymerelements-paper-behaviors[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-polymerelements-paper-material[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-polymerelements-paper-ripple[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       ├── [m[1;34mgithub-com-polymerelements-paper-styles[m
+[34m    │       │   ├── [mpom.properties
+[34m    │       │   └── [mpom.xml
+[34m    │       └── [m[1;34mwebcomponentsjs[m
+[34m    │           ├── [mpom.properties
+[34m    │           └── [mpom.xml
+[34m    └── [m[1;34mresources[m
+[34m        └── [m[1;34mwebjars[m
+[34m            ├── [m[1;34mgithub-com-Polymer-polymer[m
+[34m            │   └── [m[1;34m1.2.4[m
+[34m            │       ├── [mLICENSE.txt
+[34m            │       ├── [mbower.json
+[34m            │       ├── [mbuild.log
+[34m            │       ├── [mpolymer-micro.html
+[34m            │       ├── [mpolymer-mini.html
+[34m            │       └── [mpolymer.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-font-roboto[m
+[34m            │   └── [m[1;34m1.0.1[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       └── [mroboto.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-a11y-keys-behavior[m
+[34m            │   └── [m[1;34m1.0.6[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [mx-key-aware.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-a11y-keys-behavior.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mbasic-test.html
+[34m            │           └── [mindex.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-behaviors[m
+[34m            │   └── [m[1;34m1.0.11[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [msimple-button.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-button-state.html
+[34m            │       ├── [miron-control-state.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mactive-state.html
+[34m            │           ├── [mdisabled-state.html
+[34m            │           ├── [mfocused-state.html
+[34m            │           ├── [mindex.html
+[34m            │           └── [mtest-elements.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-checked-element-behavior[m
+[34m            │   └── [m[1;34m1.0.3[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [msimple-checkbox.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-checked-element-behavior.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mbasic.html
+[34m            │           ├── [mindex.html
+[34m            │           └── [msimple-checkbox.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-flex-layout[m
+[34m            │   └── [m[1;34m1.2.3[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mclasses[m
+[34m            │       │   ├── [miron-flex-layout.html
+[34m            │       │   └── [miron-shadow-flex-layout.html
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-flex-layout.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [miron-flex-layout.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-form-element-behavior[m
+[34m            │   └── [m[1;34m1.0.6[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   ├── [msimple-element.html
+[34m            │       │   └── [msimple-form.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-form-element-behavior.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mbasic.html
+[34m            │           ├── [mindex.html
+[34m            │           ├── [msimple-element.html
+[34m            │           └── [msimple-form.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-icon[m
+[34m            │   └── [m[1;34m1.0.7[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [masync.html
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [mlocation.png
+[34m            │       ├── [mhero.svg
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-icon.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [miron-icon.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-icons[m
+[34m            │   └── [m[1;34m1.1.3[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mav-icons.html
+[34m            │       ├── [mbower.json
+[34m            │       ├── [mcommunication-icons.html
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mdevice-icons.html
+[34m            │       ├── [meditor-icons.html
+[34m            │       ├── [mhardware-icons.html
+[34m            │       ├── [mhero.svg
+[34m            │       ├── [mimage-icons.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-icons.html
+[34m            │       ├── [mmaps-icons.html
+[34m            │       ├── [mnotification-icons.html
+[34m            │       ├── [mplaces-icons.html
+[34m            │       ├── [msocial-icons.html
+[34m            │       ├── [mupdate-icons.sh
+[34m            │       └── [m[1;34mutil[m
+[34m            │           ├── [mconcat-svg.js
+[34m            │           └── [mpackage.json
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-image[m
+[34m            │   └── [m[1;34m1.0.4[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [mpolymer.svg
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-image.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [miron-image.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-meta[m
+[34m            │   └── [m[1;34m1.1.1[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mhero.svg
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-meta.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mbasic.html
+[34m            │           ├── [mindex.html
+[34m            │           └── [miron-meta.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-iron-validatable-behavior[m
+[34m            │   └── [m[1;34m1.0.5[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mcats-only.html
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [mvalidatable-input.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-validatable-behavior.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           ├── [miron-validatable-behavior.html
+[34m            │           └── [mtest-validatable.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-paper-button[m
+[34m            │   └── [m[1;34m1.0.11[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [mpaper-button.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [mpaper-button.html
+[34m            ├── [m[1;34mgithub-com-PolymerElements-paper-card[m
+[34m            │   └── [m[1;34m1.0.8[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [mpaper-card.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mbasic.html
+[34m            │           └── [mindex.html
+[34m            ├── [m[1;34mgithub-com-polymerelements-iron-iconset-svg[m
+[34m            │   └── [m[1;34m1.0.9[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   └── [msvg-sample-icons.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [miron-iconset-svg.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [miron-iconset-svg.html
+[34m            ├── [m[1;34mgithub-com-polymerelements-paper-behaviors[m
+[34m            │   └── [m[1;34m1.0.10[m
+[34m            │       ├── [m.travis.yml
+[34m            │       ├── [mCONTRIBUTING.md
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   ├── [mindex.html
+[34m            │       │   ├── [mpaper-button.html
+[34m            │       │   └── [mpaper-radio-button.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [mpaper-button-behavior.html
+[34m            │       ├── [mpaper-checked-element-behavior.html
+[34m            │       ├── [mpaper-inky-focus-behavior.html
+[34m            │       ├── [mpaper-ripple-behavior.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           ├── [mpaper-button-behavior.html
+[34m            │           ├── [mpaper-checked-element-behavior.html
+[34m            │           ├── [mpaper-radio-button-behavior.html
+[34m            │           ├── [mpaper-ripple-behavior.html
+[34m            │           ├── [mshadowed-ripple.html
+[34m            │           ├── [mtest-button.html
+[34m            │           └── [mtest-radio-button.html
+[34m            ├── [m[1;34mgithub-com-polymerelements-paper-material[m
+[34m            │   └── [m[1;34m1.0.2[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mindex.html
+[34m            │       ├── [mpaper-material.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [mpaper-material.html
+[34m            ├── [m[1;34mgithub-com-polymerelements-paper-ripple[m
+[34m            │   └── [m[1;34m1.0.2[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mhero.svg
+[34m            │       ├── [mindex.html
+[34m            │       ├── [mpaper-ripple.html
+[34m            │       └── [m[1;34mtest[m
+[34m            │           ├── [mindex.html
+[34m            │           └── [mpaper-ripple.html
+[34m            ├── [m[1;34mgithub-com-polymerelements-paper-styles[m
+[34m            │   └── [m[1;34m1.0.9[m
+[34m            │       ├── [mREADME.md
+[34m            │       ├── [mbower.json
+[34m            │       ├── [m[1;34mclasses[m
+[34m            │       │   ├── [mglobal.html
+[34m            │       │   ├── [mshadow-layout.html
+[34m            │       │   ├── [mshadow.html
+[34m            │       │   └── [mtypography.html
+[34m            │       ├── [mcolor.html
+[34m            │       ├── [mdefault-theme.html
+[34m            │       ├── [m[1;34mdemo[m
+[34m            │       │   └── [mindex.html
+[34m            │       ├── [mdemo-pages.html
+[34m            │       ├── [mdemo.css
+[34m            │       ├── [mpaper-styles-classes.html
+[34m            │       ├── [mpaper-styles.html
+[34m            │       ├── [mshadow.html
+[34m            │       └── [mtypography.html
+[34m            └── [m[1;34mwebcomponentsjs[m
+[34m                └── [m[1;34m0.7.20[m
+[34m                    ├── [mCustomElements.js
+[34m                    ├── [mCustomElements.min.js
+[34m                    ├── [mHTMLImports.js
+[34m                    ├── [mHTMLImports.min.js
+[34m                    ├── [mMutationObserver.js
+[34m                    ├── [mMutationObserver.min.js
+[34m                    ├── [mREADME.md
+[34m                    ├── [mShadowDOM.js
+[34m                    ├── [mShadowDOM.min.js
+[34m                    ├── [mbower.json
+[34m                    ├── [mbuild.log
+[34m                    ├── [mpackage.json
+[34m                    ├── [mwebcomponents-lite.js
+[34m                    ├── [mwebcomponents-lite.min.js
+[34m                    ├── [mwebcomponents.js
+[34m                    └── [mwebcomponents.min.js

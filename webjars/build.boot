@@ -34,22 +34,12 @@
          '[boot.pod :as pod]
          '[pandeiro.boot-http    :refer [serve]])
 
-(def configs #{
-               'polymer/webjar-config
-               ;; 'resources/scripts
-               ;; 'resources/statics
-               ;; 'resources/styles
-               ;; 'polymer/config-map
-               ;; 'bower/config-map
-               })
-
 (task-options!
  serve {:handler 'hello.greeting/app}
- b/config {:config-syms configs}
- b/config-rm {:config-syms configs}
- b/install {:config-syms configs}
- b/show {:config-syms configs}
- b/webjars {:config-syms configs}
+ ;; b/config {:config-syms configs}
+ ;; b/install {:config-syms configs}
+ ;; b/install-webjars {:config-syms configs}
+ ;; b/show {:config-syms configs}
  pom  {;;:project     +project+
        :version     +version+
        :description "boot-bowdlerize compojure example"
@@ -59,11 +49,11 @@
   "build compojure sample app."
   []
   (comp
-   (b/install) (b/config-rm) (b/config) (target)))
+   (b/install) (b/config) (target)))
 
 (deftask rebuild
-  "build compojure sample app.  run b/install once first"
+  "rebuild compojure sample app.  run b/install once first"
   []
   (comp
-   (b/config-rm) (b/config) (target :no-clean true)))
+   (b/config) (target :no-clean true)))
 
