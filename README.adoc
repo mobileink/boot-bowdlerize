@@ -11,7 +11,8 @@ Clojurized version suitable for those offended by obscene languages.
 implementation of a simple technique for generating namespaced runtime
 configuration information at build-time.
 
-You can think of `boot-bowdlerize` as a meta-configuration tool.
+You can think of `boot-bowdlerize` as a meta-configuration tool.  Or a
+meta-package-manager.
 
 == motivation
 
@@ -36,6 +37,13 @@ Goals:
 * dynamically generate runtime config info at build time where possible, e.g. pull version info from resource metadata instead of hardcoding it
 
 * etc.
+
+
+WARNING: BREAKING CHANGES: configurations are now written in `.edn`
+files and the data format has changed.  The documentation here is
+out-of-date with respect to details although the overall design is
+pretty much the same.  See the link:webjars/[webjars] testapp for the most
+up-to-date config examples.
 
 == usage
 
@@ -63,66 +71,88 @@ package bundles several components, and its metadata is not
 sufficiently rich to support inference to their URIs.  So we have to
 explicitly indicate them in the `:bundles` maps.
 
-[source,clojure]
-.bower.clj
-----
-(ns bower)
+WARNING: out of date, syntax is changing
 
-(def config-map
-  [{:bower "moment"
-    :runtime 'hello.scripts/moment}
-   {:bower "materialize"
-    :bundles [{:runtime 'hello.styles/materialize
-               :uri "bower_components/Materialize/bin/materialize.css"}
-              {:runtime 'hello.scripts/materialize
-               :uri "bower_components/Materialize/bin/materialize.js"}]}])
+[source,clojure]
+.bower.edn
+----
+[{:bower "moment"
+  :runtime 'hello.scripts/moment}
+ {:bower "underscore"
+  :runtime 'hello.scripts/underscore}]
 ----
 
 === polymer
 
 `boot-bowdlerize` began life as a tool to help write
-https://www.polymer-project.org/1.0/[Polymer] webapps in Clojure.  A
-config map for Polymer resources looks just like one for bower
-resources, except `:polymer` replaces `:bower`, and for bundles a
-`:kw` entry must be supplied.  The latter ensures correct mapping from
-the user-specified `:runtime` symbol for the component and its HTML
-tag.
+https://www.polymer-project.org/1.0/[Polymer] webapps in Clojure.
 
 A sample Polymer app may be found in the `polymer` subdirectory.
 
+NOTE: up-to-date
+
 [source,clojure]
-.polymer.clj
+.polymer.edn
 ----
-(ns polymer)
+;; syntax:
+;; {<app-ns-sym> {<app-var-sym> <bower pkg>}}
 
-(def config-map
-  [{:polymer "PolymerElements/iron-icon" :runtime 'miraj.iron/icon}
-   {:polymer "PolymerElements/paper-button" :runtime 'miraj.paper/button}
-   {:polymer "PolymerElements/paper-input"
-    :bundles [{:runtime 'miraj.paper/input
-               :kw :paper-input
-               :uri "bower_components/paper-input/paper-input.html"}
-              {:runtime 'miraj.paper.input/textarea
-               :kw :paper-textarea
-               :uri "bower_components/paper-input/paper-textarea.html"}
-              {:runtime 'miraj.paper.input/behavior
-               :kw :paper-input-behavior
-               :uri "bower_components/paper-input/paper-input-behavior.html"}
-              {:runtime 'miraj.paper.input/container
-               :kw :paper-input-container
-               :uri "bower_components/paper-input/paper-input-container.html"}
-              {:runtime 'miraj.paper.input/error
-               :kw :paper-input-error
-               :uri "bower_components/paper-input/paper-input-error.html"}
-              {:runtime 'miraj.paper.input/addon-behavior
-               :kw :paper-input-addon-behavior
-               :uri "bower_components/paper-input/paper-input-addon-behavior.html"}
-              {:runtime 'miraj.paper.input/char-counter
-               :kw :paper-input-char-counter
-               :uri "bower_components/paper-input/paper-input-char-counter.html"}]}])
+{polymer.iron {icon "PolymerElements/iron-icon"
+               icons "PolymerElements/iron-icons"
+               input "PolymerElements/iron-input"}
+ polymer.paper {button "PolymerElements/paper-button"
+                card "PolymerElements/paper-card"
+                input "PolymerElements/paper-input"}
+
+ ;; for bundled web components (with html tag):
+ ;; {<app-ns-sym> {:bower <bower pkg>
+ ;;                <app-var-sym> {<html-tag> <bower-repo-url>}}}
+ polymer.paper.input {:bower "PolymerElements/paper-input"
+                      textarea {:paper-textarea "bower_components/paper-input/paper-textarea.html"}
+                      behavior {:paper-input-behavior
+                                "bower_components/paper-input/paper-input-behavior.html"}
+                      container {:paper-input-container
+                                 "bower_components/paper-input/paper-input-container.html"}
+                      error {:paper-input-error
+                             "bower_components/paper-input/paper-input-error.html"}
+                      addon-behavior {:paper-input-addon-behavior
+                                      "bower_components/paper-input/paper-input-addon-behavior.html"}
+                      char-counter {:paper-input-char-counter
+                                    "bower_components/paper-input/paper-input-char-counter.html"}}
+
+ ;; for bundled resources (not web components, no html tag):
+ ;; {<app-ns-sym> {:bower <bower pkg>
+ ;;                <app-var-sym> <bower-repo-url>}}
+ polymer.polyfill {:bower "webcomponentsjs"
+                   heavy "bower_components/webcomponentsjs/webcomponents.js"
+                   lite "bower_components/webcomponentsjs/webcomponents-lite.js"}
+ polymer.polyfill.min {:bower "webcomponentsjs"
+                       heavy "bower_components/webcomponentsjs/webcomponents.min.js"
+                       lite "bower_components/webcomponentsjs/webcomponents-lite.min.js"}}
 ----
 
-=== non-bower
+
+=== webjars
+
+NOTE: up-to-date
+
+
+[source,clojure]
+----
+;; syntax:
+;; {<app-ns-sym> {<app-var-sym> [<webjars coordinates>]}}
+
+{polymer.paper {button [org.webjars.bower/github-com-PolymerElements-paper-button "1.0.11"]
+                card [org.webjars.bower/github-com-PolymerElements-paper-card "1.0.8"]}
+ polymer.iron {icon [org.webjars.bower/github-com-PolymerElements-iron-icon "1.0.7"]
+               icons [org.webjars.bower/github-com-PolymerElements-iron-icons "1.1.3"]}
+ test {materialize [org.webjars.bower/materialize "0.97.5"]}
+ npm {base64 [org.webjars.npm/Base64 "0.3.0"]}}
+----
+
+=== local resources
+
+WARNING: out of date
 
 You can also specify resources that do not rely on bower, e.g.
 
