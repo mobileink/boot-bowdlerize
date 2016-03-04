@@ -2,9 +2,8 @@
 (def +version+ "0.1.0-SNAPSHOT")
 
 (set-env!
-;; :asset-paths #{"target"}
- :resource-paths #{"resources/public" "target/classes"}
- :source-paths #{"src" "config" "target/classes"}
+ :asset-paths #{"resources/public"}
+ :source-paths #{"src" "config"}
  :repositories {"clojars" "https://clojars.org/repo"
                 "maven-central" "http://mvnrepository.com"
                 "central" "http://repo1.maven.org/maven2/"
@@ -46,14 +45,14 @@
        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
 
 (deftask build
-  "build compojure sample app."
+  "build webjars sample app."
   []
   (comp
-   (b/install) (b/config) (target)))
+   (b/meta-config) (b/install-bower) (target)))
 
-(deftask rebuild
-  "rebuild compojure sample app.  run b/install once first"
-  []
-  (comp
-   (b/config) (target :no-clean true)))
+;; (deftask rebuild
+;;   "rebuild compojure sample app.  run b/install once first"
+;;   []
+;;   (comp
+;;    (b/config) (target :no-clean true)))
 

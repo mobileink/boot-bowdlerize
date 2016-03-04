@@ -111,14 +111,6 @@
         tgt     (boot/tmp-dir!)
         pod-env (update-in (boot/get-env) [:dependencies] conj '[cheshire "5.5.0"])
         bower-pod    (future (pod/make-pod pod-env))
-        ;;c [bcmd "install" "-j" pkg  :dir (.getPath tgt)]
-        ;; (println "sh cmd: " c)
-        ;; (pod/with-eval-in @bower-pod
-        ;;   (require '[clojure.java.shell :refer [sh]]
-        ;;            '[clojure.java.io :as io]
-        ;;            '[clojure.string :as str]
-        ;;            '[cheshire.core :as json])
-        ;; _ (println "bower-meta: " pkg)
         info (sh bcmd "info" "-j" pkg)
         j (json/parse-string (:out info) true)
         ]
@@ -538,7 +530,7 @@
             (throw (Exception. (str "only one " bowdlerize-edn " file allowed"))))))
       (-> fileset (boot/add-source tmp-dir) boot/commit!))))
 
-(boot/deftask config
+#_(boot/deftask config
   [c config-syms CONFIG-SYMS #{sym} "config namespaced sym"
    b base PATH str "bower components base path, default: bower_components"
    o outdir PATH str "install dir, default: classes"]
@@ -585,55 +577,6 @@
         (throw (Exception. (str "only one " bowdlerize-edn " file allowed"))))
       (-> fileset (boot/add-resource tmp-dir) boot/commit!))))
 
-
-
-
-  ;; (let [config-syms   (if config-syms config-syms #_(if (namespace config-syms)
-  ;;                             config-syms (throw (Exception. (str "config symbol must be namespaced"))))
-  ;;                 #{'bower/config})
-  ;;       base (if base base "bower_components")
-  ;;       outdir   (if (nil? outdir) "./" outdir)
-  ;;       tgt     (boot/tmp-dir!)
-  ;;       pod-env (update-in (boot/get-env) [:dependencies] conj '[cheshire "5.5.0"])
-  ;;       config-pod    (future (pod/make-pod pod-env))]
-  ;;   (boot/with-pre-wrap [fileset]
-  ;;     (boot/empty-dir! tgt)
-  ;;     (let [config-maps
-  ;;           (into []
-  ;;                 (flatten
-  ;;                  (for [config-sym config-syms]
-  ;;                       (let [config-ns (symbol (namespace config-sym))]
-  ;;                         ;; (println "CONFIG-NS: " config-ns)
-  ;;                         (require config-ns)
-  ;;                         ;; (doseq [[ivar isym] (ns-interns config-ns)] (println "interned: " ivar isym))
-  ;;                         (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
-  ;;                         (let [config-var (if-let [v (resolve config-sym)]
-  ;;                                            v (throw
-  ;;                                               (Exception.
-  ;;                                                (str "can't find config var for: " config-sym))))
-  ;;                               configs (deref config-var)
-  ;;                               config-specs (get-config-maps base configs)
-  ;;                               ;; _ (pp/pprint config-specs)
-  ;;                               config-specs (apply prep-for-stencil config-specs)
-  ;;                               ;; _ (println (format "config-specs for ns '%s: %s"
-  ;;                               ;;                    config-ns (count config-specs)))
-  ;;                               ]
-  ;;                           config-specs)))))
-  ;;           ;; _ (println "CONFIG-MAPS: " config-maps)
-  ;;           config-maps (merge-config-maps config-maps)
-  ;;           config-maps (typify config-maps)]
-  ;;       ;; (println "CONFIG-MAPS: " (count config-maps))
-  ;;       ;; (pp/pprint config-maps)
-  ;;       (doseq [config-map config-maps]
-  ;;           (let [config-file-name (str outdir "/" (ns->filestr (-> config-map :config-ns)) ".clj")
-  ;;                 ;; _ (println "writing: " config-file-name)
-  ;;                 config-file (stencil/render-file "boot_bowdlerize/bower.mustache"
-  ;;                                                  config-map)
-  ;;                 out-file (doto (io/file tgt config-file-name)
-  ;;                            io/make-parents)]
-  ;;             (spit out-file config-file))))
-  ;;     (-> fileset (boot/add-resource tgt) boot/commit!))))
-
 (boot/deftask info
   [p package PACKAGE str "bower package"
    n cname NAME str "clojure name for package"
@@ -666,20 +609,18 @@
 
 (declare unpack-webjars)
 
-(boot/deftask install
+#_(boot/deftask install
   "install bower components"
   [n config-syms CONFIG-SYMS #{sym} "config namespace"
    b bower            bool  "install bower pkgs only"
    j webjars          bool  "install webjars only"
    d bower-home       PATH str "where to put the bower repo (default: ~/.bower)"
    r bower-repo       PATH str "repo for bower pkgs (default: bower_components)"
-   w webjar-home      PATH str "where to put the webjars repo (default: ~/.webjars)"
-   x webjar-repo      PATH str "repo for webjars (default: webjars)"
    ]
-  ;; (println "TASK: install")
   (let [prev-pre (atom nil)]
     (boot/with-pre-wrap fileset
       (let [tmp-dir    (boot/tmp-dir!)
+            bower-cache (boot/cache-dir!)
             bower-wd   (boot/tmp-dir!)
             bower-home (if bower-home bower-home (expand-home "~/.bower"))
             bower-repo (if bower-repo bower-repo "bower_components")
@@ -720,26 +661,6 @@
                   (sh ~@c)))))
         ;; fileset))))
         (-> fileset (boot/add-asset tmp-dir) boot/commit!)))))
-
-          ;; (let [config-ns (symbol (namespace (or (:polymer config-pkg) (:bower config-pkg))))]
-          ;;   (if (nil? config-ns) (throw (Exception. (str "config symbols must be namespaced"))))
-            ;; (require config-ns)
-            ;; ;; (println "Install CONFIG-NS: " config-ns)
-            ;; (if (not (find-ns config-ns)) (throw (Exception. (str "can't find config ns"))))
-            ;; ;; (doseq [[isym ivar] (ns-interns config-ns)] (println "ISYM2: " isym ivar))
-            ;; (let [config-var (if-let [v (resolve config-sym)]
-            ;;                    v (throw (Exception. (str "can't find config var for: " config-sym))))
-            ;;       ;; _ (println "config-var: " config-var)
-            ;;       configs (deref config-var)
-            ;;       ;; _ (println "configs: " configs)
-
-            ;;       bower-pkgs (filter #(or (:bower %) (:polymer %)) configs)
-            ;;       ;; _ (println "bower-pkgs: " bower-pkgs)
-
-            ;;       destdir (.getPath tmp-dir)
-            ;;       ]
-          ;; (cond
-            ;;(not (empty? bower-pkgs))
 
 (boot/deftask show
   "show build-time dependencies"
@@ -801,15 +722,72 @@
             (if ~webjars
               (println (aether/dep-tree stripped-env)))))))))
 
+(defn- get-bower-pkgs
+  [specs]
+  ;; (println "GET-BOWER-PKGS: " specs)
+  (let [poly (-> specs :polymer vals)
+        ;; _ (println "P: ")
+        ;; _ (pp/pprint poly)
+
+        pf (fn [p] (reduce-kv (fn [m k v]
+                                (let [pkg (if (symbol? k) v
+                                              (if (vector? k) k))]
+                                  (merge m pkg)))
+                              []
+                              p))
+        pp (set (reduce concat (map pf poly)))
+        ]
+    ;; (println "PP: ")
+    ;; (pp/pprint pp)
+    pp))
+
+(boot/deftask install-bower
+  "install bower"
+  [c clean-cache bool "clean reinstall (empty cache at start)"
+   v verbose bool "verbose"]
+  (let [tmp-dir     (boot/tmp-dir!)
+        bower-cache (boot/cache-dir! :bowdlerize/bower :global true)
+        _ (if clean-cache (do (util/info (str "Cleaning bower cache\n"))
+                              (boot/empty-dir! bower-cache)))
+        ;; _ (println "BOWER CACHE: " bower-cache)
+        ;; bower-dir "bower"
+        ;; destdir  (str (.getPath bower-cache) "/" bower-dir)
+        local-bower  (io/as-file "./node_modules/bower/bin/bower")
+        global-bower (io/as-file "/usr/local/bin/bower")
+        bcmd        (cond (.exists local-bower) (.getPath local-bower)
+                          (.exists global-bower) (.getPath global-bower)
+                          :else "bower")]
+    (boot/with-pre-wrap fileset
+      (boot/empty-dir! tmp-dir)
+      (let [[edn-content pod] (->bowdlerize-pod fileset)
+            bower-specs {:bower (:bower edn-content) :polymer (:polymer edn-content)}
+            ;; _ (println "BOWER-SPECS: " bower-specs)
+            bower-pkgs (get-bower-pkgs bower-specs)
+            ;; _ (println "BOWER PKGS: " bower-pkgs)
+            ]
+        (pod/with-eval-in @pod
+          (require '[boot.pod :as pod] '[boot.util :as util]
+                   '[clojure.java.io :as io] '[clojure.string :as str]
+                   '[clojure.java.shell :refer [sh]])
+          (doseq [bower-pkg '~bower-pkgs]
+            (let [path (str "bower_components/" (first bower-pkg))]
+              (if (not (.exists (io/file ~(.getPath bower-cache) path)))
+                (let [c [~bcmd "install" (last bower-pkg) :dir ~(.getPath bower-cache)]]
+                  ;; (println "bower cmd: " c)
+                  (util/info (format "Installing bower pkg:   %s\n" bower-pkg))
+                  (apply sh c))
+                (if ~verbose (util/info (format "Found cached bower pkg: %s\n" bower-pkg))))))))
+      (-> fileset (boot/add-resource bower-cache) boot/commit!))))
+
 (boot/deftask install-webjars
   "unpack webjars"
   [c clean-cache bool "clean reinstall (empty cache at start)"
-   d webjar-dir PATH str "install dir, default: webjars"]
+   v verbose bool "verbose"]
   (let [tmp-dir     (boot/tmp-dir!)
         webjars-cache (boot/cache-dir! :bowdlerize/webjars :global true)
-        _ (if clean-cache (do (println "CLEANING CACHE") (boot/empty-dir! webjars-cache)))
-        prev-pre (atom nil)
-        webjar-dir (if webjar-dir webjar-dir "webjars")
+        _ (if clean-cache (do (util/info (str "Cleaning webjars cache\n"))
+                              (boot/empty-dir! webjars-cache)))
+        webjar-dir "webjars"
         destdir  (str (.getPath webjars-cache) "/" webjar-dir)]
     (boot/with-pre-wrap [fileset]
       (boot/empty-dir! tmp-dir)
@@ -837,8 +815,9 @@
                                             artifactid
                                             version])]
                     (if (not (.exists (io/file ~(.getPath webjars-cache) path)))
-                      (do (util/info (str "unpacking: " coord "\n"))
-                          (pod/unpack-jar (:jar dep) ~destdir))))))))
+                      (do (util/info (format "Installing webjar:   %s\n" coord))
+                          (pod/unpack-jar (:jar dep) ~destdir))
+                      (if ~verbose (util/info (format "Found cached webjar:   %s\n" coord)))))))))
       (-> fileset (boot/add-resource webjars-cache) boot/commit!))))
 
 (boot/deftask tester
