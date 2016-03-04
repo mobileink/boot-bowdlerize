@@ -379,21 +379,19 @@
                                  boot/input-files
                                  (boot/by-name [bowdlerize-edn]))]
           (condp = (count bowdlerize-fs)
-            0 (let [_ (util/info (str "Creating bowdlerize.edn\n"))
+            0 (let [_ (if verbose (util/info (str "Creating bowdlerize.edn\n")))
                     f (io/file tmp-dir bowdlerize-edn)]
                 (spit f (with-out-str (pp/pprint {:bower bower-content})))
                 fileset)
             1 (let [bowdlerize-f (first bowdlerize-fs)
-                    ;; _ (println bowdlerize-edn ": " bowdlerize-f)
                     bowdlerize-content (->  (boot/tmp-file bowdlerize-f) slurp read-string)
-                    ;; _ (println "bowdlerize-content: " bowdlerize-content)
                     path     (boot/tmp-path bowdlerize-f)
                     in-file  (boot/tmp-file bowdlerize-f)
                     out-file (io/file tmp-dir path)]
                 (if (:bower bowdlerize-content)
-                  (do (util/info (str bowdlerize-edn " Already elaborated with :bower\n"))
+                  (do (if verbose (util/info (str bowdlerize-edn " Already elaborated with :bower\n")))
                       fileset)
-                  (do (util/info (str "Elaborating " bowdlerize-edn " with :bower stanza\n"))
+                  (do (if verbose (util/info (str "Elaborating " bowdlerize-edn " with :bower stanza\n")))
                       (spit out-file (with-out-str
                                        (pp/pprint (assoc bowdlerize-content :bower bower-content)))))))
             (throw (Exception. (str "only one " bowdlerize-edn " file allowed"))))))
@@ -401,14 +399,14 @@
 
 (defn ->bowdlerize-fs
   "add bowdlerize-edn to fs if not already there"
-  [fileset]
+  [fileset verbose]
   ;; (println "->BOWDLERIZE-FS")
   (let [tmp-dir (boot/tmp-dir!)
         bowdlerize-fs (->> fileset
                            boot/input-files
                            (boot/by-name [bowdlerize-edn]))
         f (condp = (count bowdlerize-fs)
-                 0 (let [_ (util/info (str "Creating bowdlerize.edn\n"))
+                 0 (let [_ (if verbose (util/info (str "Creating bowdlerize.edn\n")))
                          f (io/file tmp-dir bowdlerize-edn)]
                      ;; (println "NEW BOWDLERIZE-EDN FILE: " f)
                      (spit f {})
@@ -427,15 +425,15 @@
   (let [tmp-dir (boot/tmp-dir!)]
     (boot/with-pre-wrap fileset
       (let [[edn-content pod] (->pkg-mgr-pod pkg-mgr fileset)
-            [bowdlerize-f newfs] (->bowdlerize-fs fileset)
+            [bowdlerize-f newfs] (->bowdlerize-fs fileset verbose)
             bowdlerize-content (-> bowdlerize-f slurp read-string)]
         (pod/with-eval-in @pod
           (require '[boot.util :as util]
                    '[clojure.pprint :as pp]
                    '[clojure.java.io :as io])
           (if (get '~bowdlerize-content ~pkg-mgr)
-            (util/info (str ~bowdlerize-edn " already elaborated with " ~pkg-mgr "\n"))
-            (do (util/info (str "Elaborating " ~bowdlerize-edn " with " ~pkg-mgr " stanza\n"))
+            (if ~verbose (util/info (str ~bowdlerize-edn " already elaborated with " ~pkg-mgr "\n")))
+            (do (if ~verbose (util/info (str "Elaborating " ~bowdlerize-edn " with " ~pkg-mgr " stanza\n")))
                 (let [path     ~(.getName bowdlerize-f)
                       out-file (io/file ~(.getPath tmp-dir) path)]
                   (spit out-file (with-out-str
@@ -449,9 +447,10 @@
   ;;  k keep bool "keep intermediate .clj files"
 
 (boot/deftask meta-config
-  [o pkg-mgrs PGKMGRS #{kw} "only these pkg mgrs (:bower, :npm :polymer, or :webjars; default is all 4)"]
+  [o pkg-mgrs PGKMGRS #{kw} "only these pkg mgrs (:bower, :npm :polymer, or :webjars; default is all 4)"
+   v verbose bool "verbose"]
   (let [pkg-mgrs (if pkg-mgrs pkg-mgrs #{:bower :npm :polymer :webjars})]
-    (apply comp (map #(meta-config-impl :pkg-mgr %) pkg-mgrs))))
+    (apply comp (map #(meta-config-impl :pkg-mgr % :verbose verbose) pkg-mgrs))))
 
 #_(boot/deftask webjars
   "process webjars.edn"
@@ -461,7 +460,7 @@
   (let [tmp-dir (boot/tmp-dir!)]
     (boot/with-pre-wrap fileset
       (let [[edn-content pod] (->pkg-mgr-pod :webjars fileset)
-            [bowdlerize-f newfs] (->bowdlerize-fs fileset)
+            [bowdlerize-f newfs] (->bowdlerize-fs fileset verbose)
             bowdlerize-content (-> bowdlerize-f slurp read-string)]
         (pod/with-eval-in @pod
           (require '[boot.util :as util]
@@ -747,7 +746,7 @@
    v verbose bool "verbose"]
   (let [tmp-dir     (boot/tmp-dir!)
         bower-cache (boot/cache-dir! :bowdlerize/bower :global true)
-        _ (if clean-cache (do (util/info (str "Cleaning bower cache\n"))
+        _ (if clean-cache (do (if verbose (util/info (str "Cleaning bower cache\n")))
                               (boot/empty-dir! bower-cache)))
         ;; _ (println "BOWER CACHE: " bower-cache)
         ;; bower-dir "bower"
@@ -774,7 +773,7 @@
               (if (not (.exists (io/file ~(.getPath bower-cache) path)))
                 (let [c [~bcmd "install" (last bower-pkg) :dir ~(.getPath bower-cache)]]
                   ;; (println "bower cmd: " c)
-                  (util/info (format "Installing bower pkg:   %s\n" bower-pkg))
+                  (if ~verbose (util/info (format "Installing bower pkg:   %s\n" bower-pkg)))
                   (apply sh c))
                 (if ~verbose (util/info (format "Found cached bower pkg: %s\n" bower-pkg))))))))
       (-> fileset (boot/add-resource bower-cache) boot/commit!))))
@@ -785,7 +784,7 @@
    v verbose bool "verbose"]
   (let [tmp-dir     (boot/tmp-dir!)
         webjars-cache (boot/cache-dir! :bowdlerize/webjars :global true)
-        _ (if clean-cache (do (util/info (str "Cleaning webjars cache\n"))
+        _ (if clean-cache (do (if verbose (util/info (str "Cleaning webjars cache\n")))
                               (boot/empty-dir! webjars-cache)))
         webjar-dir "webjars"
         destdir  (str (.getPath webjars-cache) "/" webjar-dir)]
@@ -815,16 +814,16 @@
                                             artifactid
                                             version])]
                     (if (not (.exists (io/file ~(.getPath webjars-cache) path)))
-                      (do (util/info (format "Installing webjar:   %s\n" coord))
+                      (do (if ~verbose (util/info (format "Installing webjar:   %s\n" coord)))
                           (pod/unpack-jar (:jar dep) ~destdir))
-                      (if ~verbose (util/info (format "Found cached webjar:   %s\n" coord)))))))))
+                      (if ~verbose (util/info (format "Found cached webjar: %s\n" coord)))))))))
       (-> fileset (boot/add-resource webjars-cache) boot/commit!))))
 
 (boot/deftask tester
   "test"
   [t type KW kw "type"]
   (boot/with-pre-wrap [fileset]
-    (let [[b-content pod] (->bowdlerize-pod fileset)]
+    (let [[b-content pod] (->bowdlerize-pod fileset true)]
       (println "B-CONTENT: " b-content)
 ;;      (println "POD: " pod)
       fileset))
