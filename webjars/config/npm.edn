@@ -1,2 +1,6 @@
-[{:npm "normalize.css"
-  :runtime 'hello.style/normalize}]
+;; syntax:
+;; {<app-ns-sym> {<app-var-sym> <npm package>}}
+
+{hello.styles {normalize "normalize"
+              foo "foo"
+              less "less"}}

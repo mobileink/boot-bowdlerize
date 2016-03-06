@@ -35,10 +35,6 @@
 
 (task-options!
  serve {:handler 'hello.greeting/app}
- ;; b/config {:config-syms configs}
- ;; b/install {:config-syms configs}
- ;; b/install-webjars {:config-syms configs}
- ;; b/show {:config-syms configs}
  pom  {;;:project     +project+
        :version     +version+
        :description "boot-bowdlerize compojure example"
@@ -48,7 +44,7 @@
   "build webjars sample app."
   []
   (comp
-   (b/meta-config) (b/install-bower) (target)))
+   (b/metaconf :verbose true) (b/install :clean true :verbose true) (target)))
 
 ;; (deftask rebuild
 ;;   "rebuild compojure sample app.  run b/install once first"

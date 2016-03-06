@@ -5,7 +5,7 @@
                 card [org.webjars.bower/github-com-PolymerElements-paper-card "1.0.8"]}
  polymer.iron {icon [org.webjars.bower/github-com-PolymerElements-iron-icon "1.0.7"]
                icons [org.webjars.bower/github-com-PolymerElements-iron-icons "1.1.3"]}
- test {materialize [org.webjars.bower/materialize "0.97.5"]}
- npm {base64 [org.webjars.npm/Base64 "0.3.0"]}}
+ webjars.bower {materialize [org.webjars.bower/materialize "0.97.5"]}
+ webjars.npm {base64 [org.webjars.npm/Base64 "0.3.0"]}}
 
 

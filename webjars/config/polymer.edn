@@ -1,29 +1,29 @@
 ;; syntax:
-;; {<app-ns-sym> {<app-var-sym> <bower pkg>}}
+;; {<app-ns-sym> {<app-var-sym> [<html tag kw> <bower pkg>}}}
 
-{polymer.iron {icon ["iron-icon" "PolymerElements/iron-icon"]
-               icons ["iron-icons" "PolymerElements/iron-icons"]
-               input ["iron-input" "PolymerElements/iron-input"]}
- polymer.paper {button ["paper-button" "PolymerElements/paper-button"]
-                card ["paper-card" "PolymerElements/paper-card"]
+{polymer.iron {icon [:iron-icon "PolymerElements/iron-icon"]
+               icons [:iron-icons "PolymerElements/iron-icons"]
+               input [:iron-input "PolymerElements/iron-input"]}
+ polymer.paper {button [:paper-button "PolymerElements/paper-button"]
+                card [:paper-card "PolymerElements/paper-card"]
                 ["paper-input" "PolymerElements/paper-input"]
-                {input "bower_components/paper-input/paper-input.html"
-                 textarea "bower_components/paper-input/paper-textarea.html"}}
+                {input [:paper-input "bower_components/paper-input/paper-input.html"]
+                 textarea [:paper-textarea "bower_components/paper-input/paper-textarea.html"]}}
 
  ;; for bundled web components (with html tag):
  ;; {<app-ns-sym> {:bower <bower pkg>
  ;;                <app-var-sym> {<html-tag> <bower-repo-url>}}}
  polymer.paper.input {["paper-input" "PolymerElements/paper-input"]
-                      {behavior {:paper-input-behavior
-                                 "bower_components/paper-input/paper-input-behavior.html"}
-                       container {:paper-input-container
-                                  "bower_components/paper-input/paper-input-container.html"}
-                       error {:paper-input-error
-                              "bower_components/paper-input/paper-input-error.html"}
-                       addon-behavior {:paper-input-addon-behavior
-                                       "bower_components/paper-input/paper-input-addon-behavior.html"}
-                       char-counter {:paper-input-char-counter
-                                     "bower_components/paper-input/paper-input-char-counter.html"}}}
+                      {behavior [:paper-input-behavior
+                                 "bower_components/paper-input/paper-input-behavior.html"]
+                       container [:paper-input-container
+                                  "bower_components/paper-input/paper-input-container.html"]
+                       error [:paper-input-error
+                              "bower_components/paper-input/paper-input-error.html"]
+                       addon-behavior [:paper-input-addon-behavior
+                                       "bower_components/paper-input/paper-input-addon-behavior.html"]
+                       char-counter [:paper-input-char-counter
+                                     "bower_components/paper-input/paper-input-char-counter.html"]}}
 
  ;; for bundled resources (not web components, no html tag):
  ;; {<app-ns-sym> {:bower <bower pkg>

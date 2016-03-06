@@ -1,21 +1,16 @@
+;; bower.edn
+
+;; NB: you can put polymer specs here but then tasks will not know
+;; they are polymer packages.  better to put them in polymer.edn
+
 {hello.scripts {moment "moment"
                 underscore "underscore"
+                less {:bower "less"
+                      :url "bower_components/less/dist/less.js"}
+                minless {:bower "less"
+                         :url "bower_components/less/dist/less.min.js"}
                 materialize {:bower "materialize"
                              :url "bower_components/Materialize/bin/materialize.js"}}
- hello.styles {purecss "purecss"
+ hello.styles {pure "pure"
                materialize {:bower "materialize"
                             :url "bower_components/Materialize/bin/materialize.css"}}}
-
-;; [{:bower "moment"
-;;   :runtime 'hello.scripts/moment}
-;;  {:bower "underscore"
-;;   :runtime 'hello.scripts/underscore}
-;;  {:bower "purecss"
-;;   :runtime 'hello.style/purecss}
-;;  ;; {:bower "material-design-icons"
-;;  ;;  :runtime 'hello.style/mdicons}
-;;  {:bower "materialize"
-;;   :bundles [{:runtime 'hello.styles/materialize
-;;              :uri "bower_components/Materialize/bin/materialize.css"}
-;;             {:runtime 'hello.scripts/materialize
-;;              :uri "bower_components/Materialize/bin/materialize.js"}]}]

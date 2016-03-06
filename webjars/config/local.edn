@@ -1,0 +1,12 @@
+{hello.scripts {jquery "https://code.jquery.com/jquery-2.1.1.min.js"
+                app "scripts/app.js"}
+ hello.styles {hello "styles/hello.css"
+               cards "styles/cards.css"}
+
+ ;; uncommment if running on jetty
+ ;; hello.resources {statics :uri "target"}
+
+ hello.fonts {mdicons "https://fonts.googleapis.com/icon?family=Material+Icons"}}
+
+
+
