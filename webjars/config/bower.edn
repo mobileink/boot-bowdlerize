@@ -1,16 +1,33 @@
 ;; bower.edn
 
+;; syntax: {namespace {var <bower spec>}} where <bower spec> is a map
+;; as illustrated below.
+
+;; for example, {hello.scripts {less {:bower ...}}} configures (:import (hello.scripts less))
+
 ;; NB: you can put polymer specs here but then tasks will not know
 ;; they are polymer packages.  better to put them in polymer.edn
 
 {hello.scripts {moment "moment"
                 underscore "underscore"
                 less {:bower "less"
-                      :url "bower_components/less/dist/less.js"}
+                      :type :js
+                      :tld "less"
+                      :file "bower_components/less/dist/less.js"}
                 minless {:bower "less"
-                         :url "bower_components/less/dist/less.min.js"}
+                         :type :js
+                         :tld "less"
+                         :file "bower_components/less/dist/less.min.js"}
                 materialize {:bower "materialize"
-                             :url "bower_components/Materialize/bin/materialize.js"}}
- hello.styles {pure "pure"
-               materialize {:bower "materialize"
-                            :url "bower_components/Materialize/bin/materialize.css"}}}
+                             :type :js
+                             :tld "Materialize"
+                             :file "bower_components/Materialize/bin/materialize.js"}}
+hello.styles {pure {:bower "pure"
+                    :type :css
+                    :tld "pure"
+                    ;; :cdn "http://yui.yahooapis.com/pure/0.6.0/pure-min.css"
+                    :file "/bower_components/pure/pure-min.css"}
+              materialize {:bower "materialize"
+                           :type :css
+                           :tld "Materialize"
+                           :file "bower_components/Materialize/bin/materialize.css"}}}

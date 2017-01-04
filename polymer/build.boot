@@ -12,8 +12,8 @@
  :dependencies   '[[org.clojure/clojure "1.8.0" :scope "provided"]
                    [hiccup "1.0.5"]
                    [pandeiro/boot-http          "0.7.1-SNAPSHOT" :scope "test"]
-                   [boot/core "2.5.5" :scope "provided"]
-                   [boot/pod "2.5.5" :scope "provided"]
+                   [boot/core "RELEASE" :scope "provided"]
+                   [boot/pod "RELEASE" :scope "provided"]
                    [mobileink/boot-bowdlerize "0.1.0-SNAPSHOT" :scope "test"]
                    [migae/boot-gae "0.1.0-SNAPSHOT" :scope "test"]
                    [com.google.appengine/appengine-java-sdk "1.9.32"
@@ -49,11 +49,11 @@
        :description "boot-bowdlerize polymer example"
        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
 
-(deftask dev
+#_(deftask dev
   "build with boot-gae and boot-bowdlerize"
   [k keep bool  "keep meta-config source files (copy to target)"]
   (comp
-   (b/bower)
+   ;; (b/bower)
    (b/polymer)
    (b/resources)
    ;; (b/install)

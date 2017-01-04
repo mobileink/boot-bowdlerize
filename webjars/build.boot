@@ -1,4 +1,4 @@
-;;(def +project+ 'tmp.boot-bowdlwerize/jetty)
+;;(def +project+ 'tmp.boot-bowdlerize/jetty)
 (def +version+ "0.1.0-SNAPSHOT")
 
 (set-env!
@@ -11,8 +11,8 @@
  :dependencies   '[[org.clojure/clojure "1.8.0" :scope "provided"]
                    [hiccup "1.0.5"]
                    [pandeiro/boot-http          "0.7.1-SNAPSHOT" :scope "test"]
-                   [boot/core "2.5.5" :scope "provided"]
-                   [boot/pod "2.5.5" :scope "provided"]
+                   [boot/core "RELEASE" :scope "provided"]
+                   [boot/pod "RELEASE" :scope "provided"]
                    [mobileink/boot-bowdlerize "0.1.0-SNAPSHOT" :scope "test"]
 
                    ;; [org.webjars.bower/github-com-PolymerElements-paper-button "1.0.11"]
@@ -29,7 +29,7 @@
                    ])
 
 (require '[boot-bowdlerize :as b]
-         '[boot.task.built-in :as builtin]
+         '[boot.task.built-in]
          '[boot.pod :as pod]
          '[pandeiro.boot-http    :refer [serve]])
 
@@ -42,13 +42,18 @@
 
 (deftask build
   "build webjars sample app."
-  []
+  [c clean bool "clean config - clear cache first.  default: false"
+   p pkg-mgrs PKGMGRS #{kw} "only PKGMGR (:bower, :npm, :polymer, or :webjars)"
+   t trace bool "trace"
+   v verbose bool "verbose"]
   (comp
-   (b/metaconf :verbose true) (b/install :clean true :verbose true) (target)))
-
-;; (deftask rebuild
-;;   "rebuild compojure sample app.  run b/install once first"
-;;   []
-;;   (comp
-;;    (b/config) (target :no-clean true)))
-
+   (b/metaconf :pkg-mgrs pkg-mgrs :clean clean :verbose verbose)
+   (sift :to-resource #{#"bowdlerize.edn$"})
+   (b/install :clean clean :verbose verbose)
+   (target)
+   ;; (show :fileset true)
+   (b/cache :verbose verbose :trace trace)
+   #_(b/normalize); :verbose verbose)
+   ;; (b/cache :save true :verbose verbose :trace trace)
+   #_(b/config) ;; :verbose verbose)
+   #_(sift :move {#"(.*\.clj$)" "WEB-INF/classes/$1"})))

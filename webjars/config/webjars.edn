@@ -1,11 +1,28 @@
+;; webjars.edn
+
 ;; syntax:
-;; {<app-ns-sym> {<app-var-sym> [<webjars coordinates>]}}
+;; {<app-ns-sym> {<app-var-sym> [<html tag kw> <webjars coordinates>]}}
 
-{polymer.paper {button [org.webjars.bower/github-com-PolymerElements-paper-button "1.0.11"]
-                card [org.webjars.bower/github-com-PolymerElements-paper-card "1.0.8"]}
- polymer.iron {icon [org.webjars.bower/github-com-PolymerElements-iron-icon "1.0.7"]
-               icons [org.webjars.bower/github-com-PolymerElements-iron-icons "1.1.3"]}
- webjars.bower {materialize [org.webjars.bower/materialize "0.97.5"]}
- webjars.npm {base64 [org.webjars.npm/Base64 "0.3.0"]}}
+{polymerwj.paper {button [:paper-button [org.webjars.bower/github-com-PolymerElements-paper-button "1.0.11"]]
+                  card [:paper-card [org.webjars.bower/github-com-PolymerElements-paper-card "1.0.8"]]
+                  input [:paper-input [org.webjars.bower/github-com-PolymerElements-paper-input "1.0.18"]]}
+                  ;; [org.webjars.bower/github-com-PolymerElements-paper-input "1.0.18"]
+                  ;; {input [:paper-input "bower_components/paper-input/paper-input.html"]
+                  ;;  textarea [:paper-textarea "bower_components/paper-input/paper-textarea.html"]}}
+
+ ;; for bundled web components (with html tag):
+ ;; {<app-ns-sym> {:bower <bower pkg>
+ ;;                <app-var-sym> {<html-tag> <bower-repo-url>}}}
+ ;; polymerwj.paper.input {[org.webjars.bower/github-com-PolymerElements-paper-input "1.0.18"]
+ ;;                        {behavior [:paper-input-behavior
+ ;;                                   "bower_components/paper-input/paper-input-behavior.html"]
+ ;;                         container [:paper-input-container
+ ;;                                    "bower_components/paper-input/paper-input-container.html"]}}
+
+ ;; broken:
+ webjar.iron {icon [:iron-icon [org.webjars.bower/github-com-PolymerElements-iron-icon "1.0.7"]]
+               icons [:iron-icons [org.webjars.bower/github-com-PolymerElements-iron-icons "1.1.3"]]}
 
 
+ webjar.bower {materialize [org.webjars.bower/materialize "0.97.5"]}
+ webjar.npm {base64 [org.webjars.npm/Base64 "0.3.0"]}}

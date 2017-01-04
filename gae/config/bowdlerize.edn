@@ -1,0 +1,15 @@
+[{:bower "moment" :type :js
+  :runtime hello.scripts/moment}
+ {:bower "underscore" :type :js
+  :runtime hello.scripts/underscore}
+ {:bower "purecss" :type :css
+  :runtime hello.styles/purecss}
+ {:bower "material-design-icons" :type :css
+  :runtime hello.styles/mdicons}
+ ;; {:npm "normalize.css"
+ ;;  :runtime hello.style/normalize}
+ {:bower "materialize"
+  :bundles [{:runtime hello.styles/materialize
+             :uri "bower_components/Materialize/bin/materialize.css"}
+            {:runtime hello.scripts/materialize
+             :uri "bower_components/Materialize/bin/materialize.js"}]}]

@@ -1,7 +1,11 @@
-(ns {{config-ns}})
+;; DO NOT EDIT! This file is autogenned from source edn configuration
+;; files.  Use (ns ... (:require [{{app-ns}}...])) to access these
+;; configuration vars.
 
-{{#vars}}
-(def {{name}} {:uri "{{uri}}"{{#polymer}} :kw {{kw}} :type :polymer{{/polymer}}
+(ns {{app-ns}})
+
+{{#names}}
+(def {{name}} {:file "{{file}}"{{#kw}} :kw {{kw}}{{/kw}}{{#polymer}} :type :polymer{{/polymer}}{{#webjar}} :type :webjar{{/webjar}}
      {{#css}} :type :css{{/css}}{{#js}} :type :js{{/js}}{{#html}} :type :html{{/html}}})
 
-{{/vars}}
+{{/names}}

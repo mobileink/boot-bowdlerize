@@ -1,13 +1,13 @@
 (def project 'mobileink/boot-bowdlerize)
 (def version "0.1.0-SNAPSHOT")
 
-(set-env! :resource-paths #{"resources" "src"}
-          :source-paths   #{"test"}
+(set-env! :resource-paths #{"src"}
+          ;; :source-paths   #{"test"}
           :dependencies   '[[org.clojure/clojure "RELEASE"]
                             [cheshire "5.5.0"]
                             [stencil "0.5.0"]
                             [boot "RELEASE" :scope "provided"]
-                            [boot/aether "2.5.5"]
+                            [boot/aether "RELEASE"]
                             [adzerk/boot-test "RELEASE" :scope "test"]])
 
 (task-options!

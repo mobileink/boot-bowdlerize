@@ -1,3 +1,8 @@
+;; better syntax:
+;;  {:polymer app-ns {:apptag bower-pkg-str}}
+ ;; {:polymer polymer.iron {:icon "PolymerElements/iron-icon"
+ ;;                         :list "PolymerElements/iron-list"}}
+
 [{:polymer "webcomponentsjs"
   :bundles [{:runtime polymer.polyfill/heavy
              :uri "bower_components/webcomponentsjs/webcomponents.js"}
